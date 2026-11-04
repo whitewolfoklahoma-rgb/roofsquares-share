@@ -1,0 +1,1369 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>RoofSquares — Roofing Material &amp; Bid Estimator</title>
+<style>
+:root{--bg:#0f141a;--panel:#182029;--panel2:#1f2937;--line:#2c3947;--txt:#e8eef4;--muted:#9fb0c0;--acc:#f59e0b;--good:#34d399;--bad:#f87171;--radius:12px}
+*{box-sizing:border-box}
+html,body{margin:0;padding:0}
+body{background:var(--bg);color:var(--txt);font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;font-size:15px;line-height:1.45}
+header{background:var(--panel);border-bottom:1px solid var(--line);padding:14px 16px}
+header h1{margin:0;font-size:22px}
+header h1 span{color:var(--acc)}
+header .sub{color:var(--muted);font-size:13px;margin-top:2px}
+header .co{font-size:13px;color:var(--acc);margin-top:4px;font-weight:600}
+main{max-width:980px;margin:0 auto;padding:14px 12px 60px}
+.tabs{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:14px}
+.tab{flex:1 1 auto;min-height:44px;padding:10px 8px;background:var(--panel);color:var(--muted);border:1px solid var(--line);border-radius:10px;font-size:14.5px;font-weight:600;cursor:pointer}
+.tab.active{background:var(--acc);color:#14100a;border-color:var(--acc)}
+.card{background:var(--panel);border:1px solid var(--line);border-radius:var(--radius);padding:14px;margin-bottom:14px}
+.card h2{margin:0 0 10px;font-size:17px}
+.card h3{margin:14px 0 8px;font-size:15px;color:var(--acc)}
+label{display:block;font-size:12.5px;color:var(--muted);margin:8px 0 3px}
+input,select,textarea{width:100%;min-height:42px;background:var(--panel2);border:1px solid var(--line);border-radius:8px;color:var(--txt);padding:8px 10px;font-size:15px;font-family:inherit}
+input[type=checkbox]{width:20px;min-height:20px;height:20px;vertical-align:middle}
+textarea{min-height:64px;resize:vertical}
+.grid{display:grid;grid-template-columns:1fr 1fr;gap:6px 14px}
+.grid3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:6px 14px}
+@media(max-width:640px){.grid,.grid3{grid-template-columns:1fr}}
+.btnrow{display:flex;flex-wrap:wrap;gap:8px;margin-top:12px}
+button.act{min-height:44px;padding:10px 16px;border-radius:9px;border:1px solid var(--acc);background:var(--acc);color:#14100a;font-weight:700;font-size:14.5px;cursor:pointer}
+button.ghost{min-height:44px;padding:10px 14px;border-radius:9px;border:1px solid var(--line);background:var(--panel2);color:var(--txt);font-weight:600;font-size:14px;cursor:pointer}
+button.danger{border-color:var(--bad);color:var(--bad)}
+.tblwrap{overflow-x:auto}
+table{width:100%;border-collapse:collapse;font-size:13.5px}
+th,td{padding:7px 8px;border-bottom:1px solid var(--line);text-align:left;vertical-align:top}
+th{color:var(--muted);font-weight:600;font-size:12.5px}
+td.num,th.num{text-align:right;white-space:nowrap}
+td input{min-height:36px;padding:5px 8px;font-size:14px}
+.kpi{display:grid;grid-template-columns:repeat(4,1fr);gap:8px}
+@media(max-width:640px){.kpi{grid-template-columns:1fr 1fr}}
+.kpi .box{background:var(--panel2);border:1px solid var(--line);border-radius:10px;padding:10px}
+.kpi .lab{font-size:11.5px;color:var(--muted);text-transform:uppercase;letter-spacing:.04em}
+.kpi .val{font-size:19px;font-weight:700;margin-top:2px}
+.kpi .val.acc{color:var(--acc)} .kpi .val.good{color:var(--good)} .kpi .val.bad{color:var(--bad)}
+.floorbox{border:2px solid var(--bad);background:#3a1720;border-radius:var(--radius);padding:12px;margin-top:12px}
+.floorbox strong{color:var(--bad)}
+.okbox{border:1px solid var(--good);background:#0f2b21;border-radius:var(--radius);padding:10px 12px;margin-top:12px;font-size:14px}
+.banner{border:1px solid var(--acc);background:#2e2410;border-radius:var(--radius);padding:10px 12px;margin-bottom:14px;font-size:14px}
+.msg{font-size:13.5px;margin-top:8px;min-height:18px}
+.msg.err{color:var(--bad)} .msg.ok{color:var(--good)}
+details{background:var(--panel);border:1px solid var(--line);border-radius:var(--radius);padding:12px 14px;margin-bottom:12px}
+details summary{cursor:pointer;font-weight:600}
+.small{font-size:12.5px;color:var(--muted)}
+.pill{display:inline-block;padding:1px 8px;border-radius:20px;font-size:12px;font-weight:700;border:1px solid var(--line)}
+.pill.won{color:var(--good);border-color:var(--good)} .pill.lost{color:var(--bad);border-color:var(--bad)} .pill.quoted{color:var(--acc);border-color:var(--acc)}
+.radio-row{display:flex;gap:14px;flex-wrap:wrap;margin:6px 0}
+.radio-row label{display:flex;align-items:center;gap:6px;font-size:14px;color:var(--txt);margin:0}
+.radio-row input{width:18px;min-height:18px;height:18px}
+#printArea{display:none}
+@media print{
+  body>*{display:none!important}
+  body>#printArea{display:block!important;color:#000;background:#fff;font-size:13px}
+  #printArea h1{font-size:21px;margin:0}
+  #printArea h2{font-size:15px;margin:14px 0 6px;border-bottom:2px solid #000;padding-bottom:3px}
+  #printArea table{font-size:12.5px} #printArea th,#printArea td{border-bottom:1px solid #bbb;color:#000}
+  #printArea .tot{font-size:16px;font-weight:700}
+  #printArea .muted{color:#444}
+}
+</style>
+</head>
+<body>
+<header>
+  <h1>Roof<span>Squares</span></h1>
+  <div class="sub">Roofing material &amp; bid estimator — measure, price materials, protect your margin. Works offline.</div>
+  <div class="co" id="hdrCo"></div>
+</header>
+<div style="text-align:center;padding:12px 16px;background:#fff8e6;border-bottom:2px solid #e8a13a;"><a href="https://travisbriggs.gumroad.com/l/tblmw" target="_blank" rel="noopener" style="display:inline-block;background:#e8a13a;color:#1d2b2e;font-weight:800;font-size:17px;padding:10px 22px;border-radius:8px;text-decoration:none;">Get the full version — $79</a></div>
+
+<main id="app">
+  <div class="tabs">
+    <button class="tab active" data-tab="bid" type="button">Bid Builder</button>
+    <button class="tab" data-tab="saved" type="button">Saved Bids</button>
+    <button class="tab" data-tab="settings" type="button">Settings</button>
+    <button class="tab" data-tab="help" type="button">Help</button>
+  </div>
+
+  <!-- ============ BID BUILDER ============ -->
+  <section id="tab-bid">
+    <div class="banner" id="demoBanner" style="display:none">
+      <strong>Demo bid loaded.</strong> This sample (2,000 sq ft footprint, 6/12 pitch) shows how RoofSquares works. Edit anything, or clear it and start fresh.
+      <div class="btnrow"><button class="ghost" id="btnClearDemo" type="button">Clear demo data</button></div>
+    </div>
+
+    <div class="card">
+      <h2>Customer &amp; Job</h2>
+      <div class="grid">
+        <div><label>Customer name</label><input id="bCustomer" type="text" placeholder="e.g. Johnson Residence"></div>
+        <div><label>Job date</label><input id="bDate" type="date"></div>
+        <div><label>Property address</label><input id="bAddress" type="text" placeholder="Street, City, ST"></div>
+        <div><label>Phone / email (optional)</label><input id="bContact" type="text"></div>
+      </div>
+      <label>Shingle / material description (prints on the bid)</label>
+      <input id="bShingle" type="text" placeholder="e.g. Architectural shingle — Charcoal, synthetic underlayment">
+    </div>
+
+    <div class="card">
+      <h2>Roof Measurement</h2>
+      <div class="radio-row">
+        <label><input type="radio" name="bMode" value="foot" checked> Footprint × pitch</label>
+        <label><input type="radio" name="bMode" value="area"> I measured the roof area</label>
+      </div>
+      <div class="grid">
+        <div id="wrapFoot"><label>Footprint / plan area (sq ft)</label><input inputmode="decimal" id="bFootprint" type="number" min="0" step="any" placeholder="2000"></div>
+        <div id="wrapArea" style="display:none"><label>Measured roof area (sq ft, already sloped)</label><input inputmode="decimal" id="bRoofArea" type="number" min="0" step="any" placeholder="2236"></div>
+        <div><label>Pitch</label><select id="bPitch"></select></div>
+        <div><label>Roof complexity</label>
+          <select id="bComplexity">
+            <option value="simple">Simple ranch (5% waste)</option>
+            <option value="gable" selected>Gable (10% waste)</option>
+            <option value="hip">Hip (12% waste)</option>
+            <option value="cutup">Cut-up / steep / many valleys (15% waste)</option>
+            <option value="custom">Custom waste %</option>
+          </select>
+        </div>
+        <div><label>Waste (%)</label><input inputmode="decimal" id="bWaste" type="number" min="0" max="60" step="any" value="10"></div>
+        <div><label>Tear-off layers (0 = new / no tear-off)</label>
+          <select id="bLayers"><option value="0">0 — none</option><option value="1" selected>1 layer</option><option value="2">2 layers</option><option value="3">3 layers</option></select>
+        </div>
+      </div>
+      <h3>Linear measurements (feet)</h3>
+      <div class="grid">
+        <div><label>Eaves (where gutters sit)</label><input inputmode="decimal" id="bEaves" type="number" min="0" step="any" value="0"></div>
+        <div><label>Rakes (sloped edges)</label><input inputmode="decimal" id="bRakes" type="number" min="0" step="any" value="0"></div>
+        <div><label>Ridge + hips</label><input inputmode="decimal" id="bRidge" type="number" min="0" step="any" value="0"></div>
+        <div><label>Valleys</label><input inputmode="decimal" id="bValleys" type="number" min="0" step="any" value="0"></div>
+        <div><label>Vents (count)</label><input inputmode="decimal" id="bVents" type="number" min="0" step="1" value="0"></div>
+      </div>
+      <div class="kpi" style="margin-top:12px">
+        <div class="box"><div class="lab">True roof area</div><div class="val" id="oArea">0 sq ft</div></div>
+        <div class="box"><div class="lab">Squares (roof)</div><div class="val" id="oSquares">0</div></div>
+        <div class="box"><div class="lab">Order squares (w/ waste)</div><div class="val" id="oOrderSq">0</div></div>
+        <div class="box"><div class="lab">Shingle bundles</div><div class="val acc" id="oBundles">0</div></div>
+      </div>
+    </div>
+
+    <div class="card">
+      <h2>Materials</h2>
+      <div class="small">Quantities are calculated from your measurements. Unit prices start from Settings — override any price for this bid only.</div>
+      <div class="tblwrap" style="margin-top:8px"><table>
+        <thead><tr><th>Item</th><th class="num">Qty</th><th class="num">Unit price</th><th class="num">Line total</th></tr></thead>
+        <tbody id="matBody"></tbody>
+        <tfoot><tr><th colspan="3" style="text-align:right">Materials total</th><th class="num" id="matTotal">$0.00</th></tr></tfoot>
+      </table></div>
+    </div>
+
+    <div class="card">
+      <h2>Labor, Disposal &amp; Other Costs</h2>
+      <div class="grid">
+        <div><label>Permit ($)</label><input inputmode="decimal" id="bPermit" type="number" min="0" step="any" value="0"></div>
+        <div><label>Other costs ($)</label><input inputmode="decimal" id="bOther" type="number" min="0" step="any" value="0"></div>
+      </div>
+      <label>Other costs note (optional, prints on bid)</label>
+      <input id="bOtherNote" type="text" placeholder="e.g. Decking repairs allowance">
+      <div class="tblwrap" style="margin-top:10px"><table>
+        <tbody id="costBody"></tbody>
+      </table></div>
+    </div>
+
+    <div class="card">
+      <h2>Your Price</h2>
+      <div class="kpi">
+        <div class="box"><div class="lab">Break-even (true cost)</div><div class="val" id="kBreak">$0</div></div>
+        <div class="box"><div class="lab">Profit floor price</div><div class="val bad" id="kFloor">$0</div></div>
+        <div class="box"><div class="lab">Recommended</div><div class="val good" id="kRec">$0</div></div>
+        <div class="box"><div class="lab">Premium</div><div class="val acc" id="kPrem">$0</div></div>
+      </div>
+      <div class="grid" style="margin-top:10px">
+        <div><label>Final bid price ($) — blank = Recommended</label><input inputmode="decimal" id="bFinal" type="number" min="0" step="any" placeholder="Recommended price"></div>
+        <div><label>Your margin at final price</label><input id="bMarginShow" type="text" readonly></div>
+        <div><label>Installed $ / square at final price</label><input id="bPerSqShow" type="text" readonly></div>
+        <div><label>Benchmark note</label><input id="bBandShow" type="text" readonly></div>
+      </div>
+      <div class="floorbox" id="floorBox" style="display:none">
+        <strong>⚠ Below your profit floor.</strong> <span id="floorText"></span>
+        <label style="color:var(--txt);margin-top:8px"><input type="checkbox" id="bOverride"> I understand — save anyway (one bid only)</label>
+      </div>
+      <div class="okbox" id="okBox" style="display:none"></div>
+      <label>Job notes (optional, prints on bid)</label>
+      <textarea id="bNotes" placeholder="Scope notes, exclusions, access issues…"></textarea>
+      <div class="btnrow">
+        <button class="act" id="btnSave" type="button">Save bid</button>
+        <button class="ghost" id="btnPrint" type="button">Print bid sheet</button>
+        <button class="ghost" id="btnNew" type="button">New bid</button>
+      </div>
+      <div class="msg" id="saveMsg"></div>
+    </div>
+  </section>
+
+  <!-- ============ SAVED BIDS ============ -->
+  <section id="tab-saved" style="display:none">
+    <div class="card">
+      <h2>Saved Bids</h2>
+      <div class="small" id="savedCounts"></div>
+      <div class="tblwrap" style="margin-top:8px"><table>
+        <thead><tr><th>Date</th><th>Customer</th><th class="num">Squares</th><th class="num">Price</th><th class="num">True cost</th><th class="num">Margin</th><th>Status</th><th></th></tr></thead>
+        <tbody id="savedBody"></tbody>
+      </table></div>
+      <div class="btnrow">
+        <button class="ghost" id="btnExport" type="button">Export backup (JSON)</button>
+        <button class="ghost" id="btnImport" type="button">Import backup</button>
+        <input type="file" id="fileImp" accept=".json,application/json" style="display:none">
+        <button class="ghost danger" id="btnErase" type="button">Erase all data</button>
+      </div>
+      <div class="msg" id="savedMsg"></div>
+    </div>
+  </section>
+
+  <!-- ============ SETTINGS ============ -->
+  <section id="tab-settings" style="display:none">
+    <div class="card">
+      <h2>Company (prints on bids)</h2>
+      <div class="grid">
+        <div><label>Company name</label><input id="sCoName" type="text"></div>
+        <div><label>Phone</label><input id="sCoPhone" type="text"></div>
+        <div><label>Email</label><input id="sCoEmail" type="text"></div>
+        <div><label>License / ROC # (optional)</label><input id="sCoLic" type="text"></div>
+      </div>
+      <label>Address</label><input id="sCoAddr" type="text">
+    </div>
+
+    <div class="card">
+      <h2>Material Prices &amp; Coverage</h2>
+      <div class="grid3">
+        <div><label>Shingle bundle ($)</label><input inputmode="decimal" id="sPShingle" type="number" min="0" step="any"></div>
+        <div><label>Bundles per square</label><input inputmode="decimal" id="sBundlesPerSq" type="number" min="1" step="any"></div>
+        <div><label>Starter bundle ($)</label><input inputmode="decimal" id="sPStarter" type="number" min="0" step="any"></div>
+        <div><label>Starter coverage (LF / bundle)</label><input inputmode="decimal" id="sStarterCov" type="number" min="1" step="any"></div>
+        <div><label>Underlayment roll ($)</label><input inputmode="decimal" id="sPUnderlay" type="number" min="0" step="any"></div>
+        <div><label>Underlayment coverage (sq ft / roll)</label><input inputmode="decimal" id="sUnderlayCov" type="number" min="1" step="any"></div>
+        <div><label>Ice &amp; water roll ($)</label><input inputmode="decimal" id="sPIW" type="number" min="0" step="any"></div>
+        <div><label>Ice &amp; water coverage (LF / roll)</label><input inputmode="decimal" id="sIWLF" type="number" min="1" step="any"></div>
+        <div><label>Drip edge piece ($)</label><input inputmode="decimal" id="sPDrip" type="number" min="0" step="any"></div>
+        <div><label>Drip edge length (ft / piece)</label><input inputmode="decimal" id="sDripLen" type="number" min="1" step="any"></div>
+        <div><label>Ridge cap bundle ($)</label><input inputmode="decimal" id="sPRidge" type="number" min="0" step="any"></div>
+        <div><label>Ridge cap coverage (LF / bundle)</label><input inputmode="decimal" id="sRidgeCov" type="number" min="1" step="any"></div>
+        <div><label>Nail box ($)</label><input inputmode="decimal" id="sPNails" type="number" min="0" step="any"></div>
+        <div><label>Squares per nail box</label><input inputmode="decimal" id="sNailsSqPerBox" type="number" min="1" step="any"></div>
+        <div><label>Vent ($ each)</label><input inputmode="decimal" id="sPVent" type="number" min="0" step="any"></div>
+      </div>
+    </div>
+
+    <div class="card">
+      <h2>Labor, Disposal &amp; Pricing Engine</h2>
+      <div class="grid3">
+        <div><label>Install labor ($ / square)</label><input inputmode="decimal" id="sLaborSq" type="number" min="0" step="any"></div>
+        <div><label>Tear-off labor ($ / square / layer)</label><input inputmode="decimal" id="sTearSq" type="number" min="0" step="any"></div>
+        <div><label>Pitch adder 7–9/12 (%)</label><input inputmode="decimal" id="sMidAdder" type="number" min="0" step="any"></div>
+        <div><label>Pitch adder 10/12+ (%)</label><input inputmode="decimal" id="sSteepAdder" type="number" min="0" step="any"></div>
+        <div><label>Dump / disposal ($ / load)</label><input inputmode="decimal" id="sDisposalLoad" type="number" min="0" step="any"></div>
+        <div><label>Squares per dump load (per layer)</label><input inputmode="decimal" id="sSqPerLoad" type="number" min="1" step="any"></div>
+        <div><label>Default permit ($)</label><input inputmode="decimal" id="sPermitDefault" type="number" min="0" step="any"></div>
+        <div><label>Overhead (%)</label><input inputmode="decimal" id="sOverhead" type="number" min="0" max="90" step="any"></div>
+        <div><label>PROFIT FLOOR — minimum margin (%)</label><input inputmode="decimal" id="sFloor" type="number" min="0" max="90" step="any"></div>
+        <div><label>Target margin — Recommended (%)</label><input inputmode="decimal" id="sTarget" type="number" min="0" max="90" step="any"></div>
+        <div><label>Premium markup over Recommended (%)</label><input inputmode="decimal" id="sPremium" type="number" min="0" step="any"></div>
+        <div><label>Minimum job charge ($, 0 = off)</label><input inputmode="decimal" id="sMinJob" type="number" min="0" step="any"></div>
+        <div><label>Installed band low ($ / square)</label><input inputmode="decimal" id="sBandLow" type="number" min="0" step="any"></div>
+        <div><label>Installed band high ($ / square)</label><input inputmode="decimal" id="sBandHigh" type="number" min="0" step="any"></div>
+      </div>
+      <div class="btnrow"><button class="act" id="btnSettingsSave" type="button">Save settings</button></div>
+      <div class="msg" id="setMsg"></div>
+    </div>
+
+    <div class="card">
+      <h2>Pitch Multiplier Table</h2>
+      <div class="small">Slope factor for each pitch (rise over 12). Standard geometry values — edit only if your crew measures differently. Takes effect when you save settings.</div>
+      <div id="pitchRows" style="margin-top:8px"></div>
+      <div class="btnrow"><button class="ghost" id="btnPitchReset" type="button">Reset pitch table to standard</button></div>
+    </div>
+  </section>
+
+  <!-- ============ HELP ============ -->
+  <section id="tab-help" style="display:none">
+    <div class="card">
+      <h2>How RoofSquares works</h2>
+      <p><strong>Measure.</strong> Enter the footprint (plan) area and pick the pitch — RoofSquares multiplies by the standard slope factor to get the true roof area. Already measured the sloped surface (satellite report, ladder measurement)? Switch to “I measured the roof area” and enter it directly; pitch is then used only for the labor adder.</p>
+      <p><strong>Squares &amp; materials.</strong> Waste % (set by roof complexity, adjustable) is added for ordering: bundles, starter, underlayment rolls, ice &amp; water shield for eaves + valleys, drip edge for eaves + rakes, ridge cap, nails and vents are calculated from your linear measurements. Every coverage number and price lives in Settings — localize them to your supplier.</p>
+      <p><strong>True cost.</strong> Materials + install labor (per square, with pitch adders) + tear-off labor (per square per layer) + dump loads + permit + overhead = your true cost. <strong>Break-even</strong> is that number. <strong>Recommended</strong> prices to your target margin. <strong>Premium</strong> adds your premium markup.</p>
+      <p><strong>Profit floor.</strong> Your floor is a minimum margin (default 25%) on the final price. Type a final price below the floor price and RoofSquares warns you in red and <strong>won’t save the bid</strong> unless you tick the one-time override and own the decision. This is the guardrail against winning roofs that lose money.</p>
+      <p><strong>Defaults are planning numbers, not gospel.</strong> The pitch multipliers are standard geometry. Everything else — production rates, prices, coverage, the installed $/square band ($452–$1,208 national planning band) — is a starting default. Set your real supplier prices and crew rates in Settings before trusting a bid.</p>
+      <p><strong>Your data.</strong> Everything is stored only in this browser (localStorage) on this device — no account, no cloud, no tracking, works fully offline. Use Export backup in Saved Bids before switching browsers or devices. Clearing browser data erases the app — export first.</p>
+      <p class="small" id="helpVersion">RoofSquares v1.0.1</p>
+      <p>Questions or trouble? <a id="helpEmailBtn" href="mailto:whitewolfbackoffice@gmail.com?subject=RoofSquares%20help%20%E2%80%94%20v1.0.1&amp;body=Tell%20us%20what%20you%20were%20trying%20to%20do%20and%20what%20happened%3A%0A%0A" style="display:inline-block;min-height:48px;padding:12px 18px;background:var(--acc);color:#14100a;font-weight:700;border-radius:9px;text-decoration:none">Email us</a></p>
+      <p class="small">The button opens your own mail app with our address and the app version filled in — nothing is sent until you press send there.</p>
+    </div>
+  </section>
+</main>
+<div id="printArea"></div>
+<script>
+"use strict";
+/* ================= Pure engine (no DOM access) ================= */
+var APP_VERSION = "1.0.1";
+var RS_STORE_KEY = "roofsquares_v1";
+var RS_PITCH_STD = {"0":1.0000,"1":1.0035,"2":1.0138,"3":1.0308,"4":1.0541,"5":1.0833,"6":1.1180,"7":1.1577,"8":1.2019,"9":1.2500,"10":1.3017,"11":1.3566,"12":1.4142,"14":1.5366,"16":1.6667};
+var RS_COMPLEXITY = {"simple":5,"gable":10,"hip":12,"cutup":15};
+
+function rsNum(v, dflt){
+  if (v === null || v === undefined || v === "") return (dflt === undefined ? 0 : dflt);
+  var n = (typeof v === "number") ? v : parseFloat(String(v).replace(/[$,]/g, ""));
+  if (!isFinite(n)) return (dflt === undefined ? 0 : dflt);
+  if (n < 0) n = 0;
+  if (n > 1e12) n = 1e12;
+  return n;
+}
+function rsCeil(n){ n = rsNum(n); return n <= 0 ? 0 : Math.ceil(n - 1e-9); }
+function rsFmt(n){
+  n = (typeof n === "number" && isFinite(n)) ? n : 0;
+  return "$" + n.toLocaleString("en-US", {minimumFractionDigits:2, maximumFractionDigits:2});
+}
+function rsEsc(s){
+  return String(s === null || s === undefined ? "" : s)
+    .replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;")
+    .replace(/"/g,"&quot;").replace(/'/g,"&#39;");
+}
+function rsDefaultPrices(){
+  return {shingle:42, starter:28, underlay:55, icewater:68, drip:9, ridge:48, nails:45, vent:28};
+}
+function rsDefaultSettings(){
+  return {
+    coName:"", coPhone:"", coEmail:"", coAddr:"", coLic:"",
+    prices: rsDefaultPrices(),
+    bundlesPerSq:3, starterCov:105, underlayCov:400, iwLF:66, dripLen:10, ridgeCov:33, nailsSqPerBox:15,
+    laborSq:90, tearSq:50, midAdder:15, steepAdder:30,
+    disposalLoad:475, sqPerLoad:15, permitDefault:250,
+    overhead:10, floorMargin:25, targetMargin:30, premiumPct:15, minJob:0,
+    bandLow:452, bandHigh:1208,
+    pitchTable: JSON.parse(JSON.stringify(RS_PITCH_STD))
+  };
+}
+function rsPitchMult(st, pitch){
+  var t = (st && st.pitchTable) ? st.pitchTable : RS_PITCH_STD;
+  var p = rsNum(pitch);
+  if (t[String(p)] !== undefined) return rsNum(t[String(p)], 1) || 1;
+  /* fall back to geometry for unlisted pitches */
+  return Math.sqrt(1 + Math.pow(p / 12, 2));
+}
+function rsPitchAdder(st, pitch){
+  var p = rsNum(pitch);
+  if (p >= 10) return rsNum(st.steepAdder) / 100;
+  if (p >= 7) return rsNum(st.midAdder) / 100;
+  return 0;
+}
+function rsMarginPrice(trueCost, marginPct){
+  var m = Math.min(Math.max(rsNum(marginPct), 0), 90) / 100;
+  if (!isFinite(trueCost) || trueCost <= 0) return 0;
+  return trueCost / (1 - m);
+}
+function rsMarginAt(price, trueCost){
+  if (!price || price <= 0 || !isFinite(price)) return 0;
+  return (price - trueCost) / price * 100;
+}
+function rsCompute(inp, st){
+  inp = inp || {};
+  var mode = (inp.mode === "area") ? "area" : "foot";
+  var pitch = rsNum(inp.pitch, 6);
+  var mult = (mode === "foot") ? rsPitchMult(st, pitch) : 1;
+  var baseArea = (mode === "foot") ? rsNum(inp.footprint) * mult : rsNum(inp.roofArea);
+  var waste = Math.min(rsNum(inp.wastePct, 10), 60);
+  var orderArea = baseArea * (1 + waste / 100);
+  var squaresRoof = baseArea / 100;
+  var squaresOrder = orderArea / 100;
+  var layers = Math.min(Math.round(rsNum(inp.layers, 1)), 3);
+  var eaves = rsNum(inp.eavesLF), rakes = rsNum(inp.rakesLF), ridge = rsNum(inp.ridgeLF), valleys = rsNum(inp.valleyLF);
+  var prices = {};
+  var dp = rsDefaultPrices();
+  ["shingle","starter","underlay","icewater","drip","ridge","nails","vent"].forEach(function(k){
+    var src = (inp.prices && inp.prices[k] !== undefined && inp.prices[k] !== "") ? inp.prices[k]
+            : (st.prices && st.prices[k] !== undefined ? st.prices[k] : dp[k]);
+    prices[k] = rsNum(src);
+  });
+  var bps = Math.max(rsNum(st.bundlesPerSq, 3), 0.5);
+  var lines = [
+    {key:"shingle",    label:"Shingle bundles",              unit:"bundle", qty: rsCeil(squaresOrder * bps)},
+    {key:"starter",    label:"Starter bundles",              unit:"bundle", qty: rsCeil(eaves / Math.max(rsNum(st.starterCov, 105), 1))},
+    {key:"underlay",   label:"Underlayment rolls",           unit:"roll",   qty: rsCeil(baseArea / Math.max(rsNum(st.underlayCov, 400), 1))},
+    {key:"icewater",   label:"Ice & water shield rolls",     unit:"roll",   qty: rsCeil((eaves + valleys) / Math.max(rsNum(st.iwLF, 66), 1))},
+    {key:"drip",       label:"Drip edge (10 ft pieces)",     unit:"pc",     qty: rsCeil((eaves + rakes) / Math.max(rsNum(st.dripLen, 10), 1))},
+    {key:"ridge",      label:"Ridge cap bundles",            unit:"bundle", qty: rsCeil(ridge / Math.max(rsNum(st.ridgeCov, 33), 1))},
+    {key:"nails",      label:"Roofing nails (boxes)",        unit:"box",    qty: rsCeil(squaresOrder / Math.max(rsNum(st.nailsSqPerBox, 15), 1))},
+    {key:"vent",       label:"Vents",                        unit:"ea",     qty: Math.round(rsNum(inp.vents))}
+  ];
+  var materialsTotal = 0;
+  lines.forEach(function(L){ L.price = prices[L.key]; L.total = L.qty * L.price; materialsTotal += L.total; });
+  var laborInstall = squaresRoof * rsNum(st.laborSq) * (1 + rsPitchAdder(st, pitch));
+  var laborTear = squaresRoof * rsNum(st.tearSq) * layers;
+  var loads = (layers > 0 && squaresOrder > 0) ? rsCeil(squaresOrder * layers / Math.max(rsNum(st.sqPerLoad, 15), 1)) : 0;
+  var disposal = loads * rsNum(st.disposalLoad);
+  var permit = rsNum(inp.permit);
+  var other = rsNum(inp.otherCosts);
+  var subtotal = materialsTotal + laborInstall + laborTear + disposal + permit + other;
+  var trueCost = subtotal * (1 + rsNum(st.overhead) / 100);
+  var breakEven = trueCost;
+  var floorPrice = Math.max(rsMarginPrice(trueCost, st.floorMargin), rsNum(st.minJob));
+  var recommended = rsMarginPrice(trueCost, st.targetMargin);
+  var premium = recommended * (1 + rsNum(st.premiumPct) / 100);
+  return {
+    mode: mode, pitch: pitch, pitchMult: mult, baseArea: baseArea, wastePct: waste,
+    orderArea: orderArea, squaresRoof: squaresRoof, squaresOrder: squaresOrder, layers: layers,
+    lines: lines, materialsTotal: materialsTotal,
+    laborInstall: laborInstall, laborTear: laborTear, disposalLoads: loads, disposal: disposal,
+    permit: permit, other: other, subtotal: subtotal, trueCost: trueCost,
+    breakEven: breakEven, floorPrice: floorPrice, recommended: recommended, premium: premium
+  };
+}
+function rsDemoInputs(st){
+  return {
+    customer:"Demo — Johnson Residence", address:"123 Demo Lane", contact:"", date:"",
+    shingle:"Architectural shingle — Charcoal", notes:"Demo bid: one-layer tear-off, synthetic underlayment, ice & water at eaves and valleys.",
+    mode:"foot", footprint:2000, roofArea:0, pitch:6, complexity:"gable", wastePct:10, layers:1,
+    eavesLF:90, rakesLF:70, ridgeLF:45, valleyLF:20, vents:5,
+    permit: rsNum(st && st.permitDefault, 250), otherCosts:0, otherNote:"",
+    prices: null, finalPrice: null
+  };
+}
+function rsExportString(state){
+  return JSON.stringify({app:"roofsquares", version:1, exported:new Date().toISOString(), settings:state.settings, bids:state.bids, legal:state.legal || null}, null, 2);
+}
+function rsValidImport(obj){
+  return !!(obj && typeof obj === "object" && obj.settings && typeof obj.settings === "object" && Array.isArray(obj.bids));
+}
+</script>
+<script>
+"use strict";
+/* ================= State ================= */
+function rsUid(){ return "r" + Date.now().toString(36) + Math.floor(Math.random() * 99999).toString(36); }
+function rsDefaultState(){
+  var st = rsDefaultSettings();
+  var demo = rsDemoInputs(st);
+  demo.id = rsUid(); demo.status = "quoted"; demo.demo = true; demo.date = rsToday();
+  var c = rsCompute(demo, st);
+  demo.finalPrice = Math.round(c.recommended * 100) / 100;
+  demo.snapshot = rsSnapshot(c);
+  return { settings: st, bids: [demo], currentId: demo.id, demoSeeded: true };
+}
+function rsSnapshot(c){
+  return { squaresRoof: c.squaresRoof, squaresOrder: c.squaresOrder, baseArea: c.baseArea,
+           materialsTotal: c.materialsTotal, trueCost: c.trueCost, breakEven: c.breakEven,
+           floorPrice: c.floorPrice, recommended: c.recommended, premium: c.premium };
+}
+function rsToday(){
+  var d = new Date();
+  var m = String(d.getMonth() + 1); if (m.length < 2) m = "0" + m;
+  var day = String(d.getDate()); if (day.length < 2) day = "0" + day;
+  return d.getFullYear() + "-" + m + "-" + day;
+}
+function rsLoad(){
+  try {
+    if (typeof localStorage !== "undefined") {
+      var raw = localStorage.getItem(RS_STORE_KEY);
+      if (raw) {
+        var parsed = JSON.parse(raw);
+        if (parsed && parsed.settings && Array.isArray(parsed.bids)) {
+          var merged = rsDefaultSettings();
+          Object.keys(merged).forEach(function(k){ if (parsed.settings[k] !== undefined) merged[k] = parsed.settings[k]; });
+          if (!merged.prices) merged.prices = rsDefaultPrices();
+          parsed.settings = merged;
+          return parsed;
+        }
+      }
+    }
+  } catch (e) {}
+  return rsDefaultState();
+}
+var state = (typeof localStorage !== "undefined" || typeof document !== "undefined") ? rsLoad() : rsDefaultState();
+var currentCalc = null;
+var overrideArmed = false;
+
+function rsSave(){
+  try { localStorage.setItem(RS_STORE_KEY, JSON.stringify(state)); } catch (e) {}
+}
+
+/* ================= UI (browser only) ================= */
+if (typeof document !== "undefined") {
+document.addEventListener("DOMContentLoaded", function(){
+  var $ = function(id){ return document.getElementById(id); };
+
+  /* ---- Help: Email us (§11) — href built from APP_VERSION at runtime ---- */
+  function syncHelpEmail(){
+    var a = $("helpEmailBtn"); if (!a) return;
+    a.href = "mailto:whitewolfbackoffice@gmail.com?subject=" + encodeURIComponent("RoofSquares help \u2014 v" + APP_VERSION) +
+      "&body=" + encodeURIComponent("Tell us what you were trying to do and what happened:\n\n");
+    var v = $("helpVersion"); if (v) v.textContent = "RoofSquares v" + APP_VERSION;
+  }
+  syncHelpEmail();
+
+  /* ---- tabs ---- */
+  var tabs = document.querySelectorAll(".tab");
+  tabs.forEach(function(t){
+    t.addEventListener("click", function(){
+      tabs.forEach(function(x){ x.classList.remove("active"); });
+      t.classList.add("active");
+      ["bid","saved","settings","help"].forEach(function(n){
+        $("tab-" + n).style.display = (n === t.getAttribute("data-tab")) ? "" : "none";
+      });
+      if (t.getAttribute("data-tab") === "saved") renderSaved();
+      if (t.getAttribute("data-tab") === "settings") renderSettings();
+    });
+  });
+
+  /* ---- helpers ---- */
+  function val(id){ var el = $(id); return el ? el.value : ""; }
+  function setVal(id, v){ var el = $(id); if (el) el.value = (v === null || v === undefined) ? "" : v; }
+  function msg(id, text, ok){
+    var el = $(id); if (!el) return;
+    el.textContent = text || "";
+    el.className = "msg " + (text ? (ok ? "ok" : "err") : "");
+  }
+
+  function pitchOptions(sel){
+    var t = state.settings.pitchTable || RS_PITCH_STD;
+    return Object.keys(t).sort(function(a,b){ return parseFloat(a) - parseFloat(b); })
+      .map(function(k){ return '<option value="' + k + '"' + (String(sel) === k ? " selected" : "") + ">" + k + "/12</option>"; }).join("");
+  }
+
+  function readForm(){
+    var mode = "foot";
+    var radios = document.querySelectorAll('input[name="bMode"]');
+    radios.forEach(function(r){ if (r.checked) mode = r.value; });
+    var prices = {};
+    ["shingle","starter","underlay","icewater","drip","ridge","nails","vent"].forEach(function(k){
+      var el = $("mp_" + k);
+      prices[k] = el ? el.value : "";
+    });
+    return {
+      customer: val("bCustomer"), address: val("bAddress"), contact: val("bContact"), date: val("bDate"),
+      shingle: val("bShingle"), notes: val("bNotes"),
+      mode: mode, footprint: val("bFootprint"), roofArea: val("bRoofArea"),
+      pitch: val("bPitch"), complexity: val("bComplexity"), wastePct: val("bWaste"), layers: val("bLayers"),
+      eavesLF: val("bEaves"), rakesLF: val("bRakes"), ridgeLF: val("bRidge"), valleyLF: val("bValleys"),
+      vents: val("bVents"), permit: val("bPermit"), otherCosts: val("bOther"), otherNote: val("bOtherNote"),
+      prices: prices, finalPrice: val("bFinal")
+    };
+  }
+
+  function fillForm(b){
+    setVal("bCustomer", b.customer); setVal("bAddress", b.address); setVal("bContact", b.contact);
+    setVal("bDate", b.date || rsToday()); setVal("bShingle", b.shingle); setVal("bNotes", b.notes);
+    var radios = document.querySelectorAll('input[name="bMode"]');
+    radios.forEach(function(r){ r.checked = (r.value === (b.mode || "foot")); });
+    setVal("bFootprint", b.footprint); setVal("bRoofArea", b.roofArea);
+    $("bPitch").innerHTML = pitchOptions(b.pitch === undefined ? 6 : b.pitch);
+    setVal("bComplexity", b.complexity || "gable");
+    setVal("bWaste", b.wastePct === undefined ? 10 : b.wastePct);
+    setVal("bLayers", String(b.layers === undefined ? 1 : b.layers));
+    setVal("bEaves", b.eavesLF); setVal("bRakes", b.rakesLF); setVal("bRidge", b.ridgeLF);
+    setVal("bValleys", b.valleyLF); setVal("bVents", b.vents);
+    setVal("bPermit", b.permit); setVal("bOther", b.otherCosts); setVal("bOtherNote", b.otherNote);
+    setVal("bFinal", (b.finalPrice === null || b.finalPrice === undefined) ? "" : b.finalPrice);
+    var p = b.prices || {};
+    ["shingle","starter","underlay","icewater","drip","ridge","nails","vent"].forEach(function(k){
+      var el = $("mp_" + k);
+      if (el) el.value = (p[k] !== undefined && p[k] !== null && p[k] !== "") ? p[k] : state.settings.prices[k];
+    });
+    $("bOverride").checked = false; overrideArmed = false;
+    syncMode(); recalc();
+  }
+
+  function syncMode(){
+    var mode = "foot";
+    document.querySelectorAll('input[name="bMode"]').forEach(function(r){ if (r.checked) mode = r.value; });
+    $("wrapFoot").style.display = (mode === "foot") ? "" : "none";
+    $("wrapArea").style.display = (mode === "area") ? "" : "none";
+  }
+
+  function renderMaterials(c){
+    var html = "";
+    c.lines.forEach(function(L){
+      html += "<tr><td>" + rsEsc(L.label) + ' <span class="small">(' + L.unit + ')</span></td>' +
+        '<td class="num">' + L.qty.toLocaleString("en-US") + "</td>" +
+        '<td class="num"><input inputmode="decimal" type="number" min="0" step="any" id="mp_' + L.key + '" value="' + L.price + '"></td>' +
+        '<td class="num">' + rsFmt(L.total) + "</td></tr>";
+    });
+    $("matBody").innerHTML = html;
+    $("matTotal").textContent = rsFmt(c.materialsTotal);
+    c.lines.forEach(function(L){
+      $("mp_" + L.key).addEventListener("input", recalc);
+    });
+  }
+
+  function recalc(){
+    var inp = readForm();
+    var c = rsCompute(inp, state.settings);
+    currentCalc = c;
+    $("oArea").textContent = Math.round(c.baseArea).toLocaleString("en-US") + " sq ft";
+    $("oSquares").textContent = c.squaresRoof.toFixed(2);
+    $("oOrderSq").textContent = c.squaresOrder.toFixed(2) + " → " + Math.ceil(c.squaresOrder - 1e-9) + " sq";
+    var bundles = 0;
+    c.lines.forEach(function(L){ if (L.key === "shingle") bundles = L.qty; });
+    $("oBundles").textContent = bundles.toLocaleString("en-US");
+    renderMaterials(c);
+    var rows = [
+      ["Install labor (" + c.squaresRoof.toFixed(2) + " sq × " + rsFmt(state.settings.laborSq) + (rsPitchAdder(state.settings, c.pitch) > 0 ? " incl. pitch adder" : "") + ")", c.laborInstall]
+    ];
+    if (c.layers > 0) rows.push(["Tear-off labor (" + c.layers + " layer" + (c.layers > 1 ? "s" : "") + ")", c.laborTear]);
+    if (c.disposal > 0) rows.push(["Dump / disposal (" + c.disposalLoads + " load" + (c.disposalLoads > 1 ? "s" : "") + ")", c.disposal]);
+    if (c.permit > 0) rows.push(["Permit", c.permit]);
+    if (c.other > 0) rows.push(["Other costs" + (inp.otherNote ? " — " + inp.otherNote : ""), c.other]);
+    rows.push(["Subtotal", c.subtotal]);
+    rows.push(["Overhead (" + state.settings.overhead + "%)", c.trueCost - c.subtotal]);
+    var ch = "";
+    rows.forEach(function(r, i){
+      var last = (i >= rows.length - 2);
+      ch += "<tr><td>" + rsEsc(r[0]) + '</td><td class="num">' + rsFmt(r[1]) + "</td></tr>";
+    });
+    ch += '<tr><th style="text-align:right">True cost</th><th class="num">' + rsFmt(c.trueCost) + "</th></tr>";
+    $("costBody").innerHTML = ch;
+    $("kBreak").textContent = rsFmt(c.breakEven);
+    $("kFloor").textContent = rsFmt(c.floorPrice);
+    $("kRec").textContent = rsFmt(c.recommended);
+    $("kPrem").textContent = rsFmt(c.premium);
+    var finalRaw = val("bFinal");
+    var finalPrice = (finalRaw === "" ) ? c.recommended : rsNum(finalRaw);
+    var m = rsMarginAt(finalPrice, c.trueCost);
+    $("bMarginShow").value = finalPrice > 0 ? m.toFixed(1) + "%" : "—";
+    var perSq = (c.squaresRoof > 0 && finalPrice > 0) ? finalPrice / c.squaresRoof : 0;
+    $("bPerSqShow").value = perSq > 0 ? rsFmt(perSq) + " / sq" : "—";
+    var band = "—";
+    if (perSq > 0) {
+      if (perSq < rsNum(state.settings.bandLow)) band = "Below typical installed band";
+      else if (perSq > rsNum(state.settings.bandHigh)) band = "Above typical installed band";
+      else band = "Within typical installed band";
+    }
+    $("bBandShow").value = band;
+    var below = finalPrice > 0 && finalPrice < c.floorPrice - 0.005;
+    $("floorBox").style.display = below ? "" : "none";
+    if (below) {
+      $("floorText").textContent = "Final price " + rsFmt(finalPrice) + " is under your floor of " + rsFmt(c.floorPrice) +
+        " (min margin " + state.settings.floorMargin + "%). Raise the price, or tick the override to save this one bid anyway.";
+      $("bOverride").checked = overrideArmed;
+    } else { overrideArmed = false; }
+    var ok = $("okBox");
+    if (finalPrice > 0 && !below) {
+      ok.style.display = "";
+      ok.textContent = "✓ Above your profit floor — margin " + m.toFixed(1) + "% at " + rsFmt(finalPrice) + ".";
+    } else ok.style.display = "none";
+    return c;
+  }
+
+  /* ---- form wiring ---- */
+  ["bCustomer","bAddress","bContact","bDate","bShingle","bNotes","bFootprint","bRoofArea","bWaste",
+   "bEaves","bRakes","bRidge","bValleys","bVents","bPermit","bOther","bOtherNote","bFinal"].forEach(function(id){
+    $(id).addEventListener("input", recalc);
+  });
+  ["bPitch","bLayers"].forEach(function(id){ $(id).addEventListener("change", recalc); });
+  document.querySelectorAll('input[name="bMode"]').forEach(function(r){
+    r.addEventListener("change", function(){ syncMode(); recalc(); });
+  });
+  $("bComplexity").addEventListener("change", function(){
+    var cx = val("bComplexity");
+    if (RS_COMPLEXITY[cx] !== undefined) setVal("bWaste", RS_COMPLEXITY[cx]);
+    recalc();
+  });
+  $("bOverride").addEventListener("change", function(){ overrideArmed = $("bOverride").checked; });
+
+  $("btnNew").addEventListener("click", function(){
+    state.currentId = null;
+    var fresh = {
+      customer:"", address:"", contact:"", date: rsToday(), shingle:"", notes:"",
+      mode:"foot", footprint:"", roofArea:"", pitch:6, complexity:"gable", wastePct:10, layers:1,
+      eavesLF:"", rakesLF:"", ridgeLF:"", valleyLF:"", vents:"",
+      permit: state.settings.permitDefault, otherCosts:"", otherNote:"", prices:null, finalPrice:null
+    };
+    fillForm(fresh);
+    msg("saveMsg", "");
+  });
+
+  $("btnSave").addEventListener("click", function(){
+    var inp = readForm();
+    var c = recalc();
+    var finalPrice = (inp.finalPrice === "" || inp.finalPrice === null) ? c.recommended : rsNum(inp.finalPrice);
+    if (c.trueCost <= 0) { msg("saveMsg", "Nothing to save yet — enter a roof measurement first."); return; }
+    if (finalPrice > 0 && finalPrice < c.floorPrice - 0.005 && !overrideArmed) {
+      msg("saveMsg", "Blocked by your profit floor (" + rsFmt(c.floorPrice) + "). Raise the price or tick the override in the red box.");
+      return;
+    }
+    var rec = {
+      id: state.currentId || rsUid(),
+      customer: inp.customer || "Untitled bid", address: inp.address, contact: inp.contact,
+      date: inp.date || rsToday(), shingle: inp.shingle, notes: inp.notes,
+      mode: inp.mode, footprint: rsNum(inp.footprint), roofArea: rsNum(inp.roofArea),
+      pitch: rsNum(inp.pitch, 6), complexity: inp.complexity, wastePct: rsNum(inp.wastePct, 10),
+      layers: Math.round(rsNum(inp.layers, 1)), eavesLF: rsNum(inp.eavesLF), rakesLF: rsNum(inp.rakesLF),
+      ridgeLF: rsNum(inp.ridgeLF), valleyLF: rsNum(inp.valleyLF), vents: Math.round(rsNum(inp.vents)),
+      permit: rsNum(inp.permit), otherCosts: rsNum(inp.otherCosts), otherNote: inp.otherNote,
+      prices: {}, finalPrice: Math.round(finalPrice * 100) / 100,
+      status: "quoted", demo: false, snapshot: rsSnapshot(c)
+    };
+    ["shingle","starter","underlay","icewater","drip","ridge","nails","vent"].forEach(function(k){ rec.prices[k] = rsNum(inp.prices[k]); });
+    var idx = -1;
+    state.bids.forEach(function(b, i){ if (b.id === rec.id) idx = i; });
+    if (idx >= 0) { rec.status = state.bids[idx].status; rec.demo = state.bids[idx].demo; state.bids[idx] = rec; }
+    else state.bids.push(rec);
+    state.currentId = rec.id;
+    rsSave();
+    msg("saveMsg", "Saved ✓ — " + rec.customer + " at " + rsFmt(rec.finalPrice) + " (margin " + rsMarginAt(rec.finalPrice, c.trueCost).toFixed(1) + "%).", true);
+  });
+
+  /* ---- print ---- */
+  function buildPrint(b){
+    var st = state.settings;
+    var c = rsCompute(b, st);
+    var co = st.coName ? rsEsc(st.coName) : "Roofing Contractor";
+    var scope = [];
+    if (c.layers > 0) scope.push("Tear off " + c.layers + " existing layer" + (c.layers > 1 ? "s" : "") + " and haul away debris");
+    scope.push("Install " + (b.shingle ? rsEsc(b.shingle) : "new shingle roof") + " — approx. " + c.squaresOrder.toFixed(1) + " squares incl. waste");
+    scope.push("Synthetic underlayment, ice &amp; water shield at eaves and valleys");
+    scope.push("New drip edge, ridge cap, and vents as listed below");
+    scope.push("Clean-up and magnetic nail sweep of the property");
+    var mh = "";
+    c.lines.forEach(function(L){ if (L.qty > 0) mh += "<tr><td>" + rsEsc(L.label) + '</td><td style="text-align:right">' + L.qty.toLocaleString("en-US") + " " + L.unit + "</td></tr>"; });
+    var price = (b.finalPrice !== null && b.finalPrice !== undefined && b.finalPrice !== "") ? rsNum(b.finalPrice) : c.recommended;
+    $("printArea").innerHTML =
+      "<h1>" + co + "</h1>" +
+      '<div class="muted">' + [st.coAddr, st.coPhone, st.coEmail, st.coLic ? "Lic. " + st.coLic : ""].filter(Boolean).map(rsEsc).join(" · ") + "</div>" +
+      "<h2>Roofing Proposal</h2>" +
+      "<p><strong>Customer:</strong> " + rsEsc(b.customer || "") + (b.address ? " — " + rsEsc(b.address) : "") + "<br>" +
+      "<strong>Date:</strong> " + rsEsc(b.date || "") + " &nbsp; <strong>Roof:</strong> " + Math.round(c.baseArea).toLocaleString("en-US") + " sq ft · " + c.squaresRoof.toFixed(1) + " squares · " + c.pitch + "/12 pitch</p>" +
+      "<h2>Scope of Work</h2><ul>" + scope.map(function(s){ return "<li>" + s + "</li>"; }).join("") + "</ul>" +
+      (mh ? "<h2>Materials</h2><table>" + mh + "</table>" : "") +
+      (b.otherNote ? "<p><strong>Note:</strong> " + rsEsc(b.otherNote) + "</p>" : "") +
+      (b.notes ? "<p><strong>Notes:</strong> " + rsEsc(b.notes) + "</p>" : "") +
+      '<p class="tot">Total: ' + rsFmt(price) + "</p>" +
+      '<p class="muted">Terms: ______% deposit to schedule, balance on completion. Proposal valid 14 days. Workmanship warranty and material warranty details provided in the contract.</p>' +
+      "<p>Customer signature: ______________________________ &nbsp; Date: __________</p>";
+  }
+  $("btnPrint").addEventListener("click", function(){
+    var inp = readForm();
+    buildPrint(inp);
+    window.print();
+  });
+
+  /* ---- saved bids ---- */
+  function renderSaved(){
+    var rows = "";
+    var won = 0, quoted = 0, lost = 0;
+    state.bids.forEach(function(b){
+      if (b.status === "won") won++; else if (b.status === "lost") lost++; else quoted++;
+      var s = b.snapshot || rsSnapshot(rsCompute(b, state.settings));
+      var price = rsNum(b.finalPrice);
+      rows += "<tr><td>" + rsEsc(b.date || "") + "</td><td>" + rsEsc(b.customer || "") + (b.demo ? ' <span class="small">(demo)</span>' : "") + "</td>" +
+        '<td class="num">' + (s.squaresRoof ? s.squaresRoof.toFixed(1) : "—") + "</td>" +
+        '<td class="num">' + rsFmt(price) + '</td><td class="num">' + rsFmt(s.trueCost || 0) + "</td>" +
+        '<td class="num">' + (price > 0 ? rsMarginAt(price, s.trueCost || 0).toFixed(1) + "%" : "—") + "</td>" +
+        '<td><span class="pill ' + (b.status || "quoted") + '">' + (b.status || "quoted") + "</span></td>" +
+        '<td style="white-space:nowrap">' +
+          '<button class="ghost" data-act="load" data-id="' + b.id + '" type="button">Open</button> ' +
+          '<button class="ghost" data-act="won" data-id="' + b.id + '" type="button">Won</button> ' +
+          '<button class="ghost" data-act="lost" data-id="' + b.id + '" type="button">Lost</button> ' +
+          '<button class="ghost" data-act="print" data-id="' + b.id + '" type="button">Print</button> ' +
+          '<button class="ghost danger" data-act="del" data-id="' + b.id + '" type="button">Delete</button>' +
+        "</td></tr>";
+    });
+    $("savedBody").innerHTML = rows || '<tr><td colspan="8" class="small">No saved bids yet.</td></tr>';
+    $("savedCounts").textContent = state.bids.length + " bid(s) — " + quoted + " quoted · " + won + " won · " + lost + " lost";
+    $("savedBody").querySelectorAll("button[data-act]").forEach(function(btn){
+      btn.addEventListener("click", function(){
+        var id = btn.getAttribute("data-id"), act = btn.getAttribute("data-act");
+        var b = null;
+        state.bids.forEach(function(x){ if (x.id === id) b = x; });
+        if (!b) return;
+        if (act === "load") {
+          state.currentId = b.id;
+          fillForm(b);
+          document.querySelector('.tab[data-tab="bid"]').click();
+        } else if (act === "won" || act === "lost") {
+          b.status = (b.status === act) ? "quoted" : act;
+          rsSave(); renderSaved();
+        } else if (act === "print") {
+          buildPrint(b); window.print();
+        } else if (act === "del") {
+          if (window.confirm("Delete this bid permanently?")) {
+            state.bids = state.bids.filter(function(x){ return x.id !== id; });
+            if (state.currentId === id) state.currentId = null;
+            rsSave(); renderSaved();
+          }
+        }
+      });
+    });
+  }
+
+  $("btnExport").addEventListener("click", function(){
+    try {
+      var blob = new Blob([rsExportString(state)], {type: "application/json"});
+      var a = document.createElement("a");
+      a.href = URL.createObjectURL(blob);
+      a.download = "roofsquares-backup.json";
+      document.body.appendChild(a); a.click();
+      document.body.removeChild(a);
+      msg("savedMsg", "Backup downloaded ✓", true);
+    } catch (e) { msg("savedMsg", "Export failed in this browser — " + e.message); }
+  });
+  $("btnImport").addEventListener("click", function(){ $("fileImp").click(); });
+  $("fileImp").addEventListener("change", function(){
+    var f = $("fileImp").files && $("fileImp").files[0];
+    if (!f) return;
+    var reader = new FileReader();
+    reader.onload = function(){
+      try {
+        var obj = JSON.parse(String(reader.result));
+        if (!rsValidImport(obj)) { msg("savedMsg", "That file is not a RoofSquares backup — nothing was changed."); return; }
+        var merged = rsDefaultSettings();
+        Object.keys(merged).forEach(function(k){ if (obj.settings[k] !== undefined) merged[k] = obj.settings[k]; });
+        state.settings = merged;
+        state.bids = obj.bids;
+        state.legal = obj.legal || null;
+        state.currentId = null;
+        rsSave(); renderSaved(); renderSettings();
+        msg("savedMsg", "Backup imported ✓ — " + state.bids.length + " bid(s) restored.", true);
+      } catch (e) {
+        msg("savedMsg", "Could not read that file (invalid backup) — nothing was changed.");
+      }
+      $("fileImp").value = "";
+    };
+    reader.readAsText(f);
+  });
+  $("btnErase").addEventListener("click", function(){
+    if (window.confirm("Erase ALL RoofSquares data (settings + every bid) on this device? Export a backup first if unsure.")) {
+      try { localStorage.removeItem(RS_STORE_KEY); } catch (e) {}
+      state = rsDefaultState();
+      rsSave(); renderSaved(); renderSettings();
+      var first = state.bids[0];
+      if (first) { state.currentId = first.id; fillForm(first); }
+      updateDemoBanner();
+      msg("savedMsg", "All data erased — fresh demo loaded.", true);
+    }
+  });
+
+  /* ---- demo ---- */
+  function updateDemoBanner(){
+    var hasDemo = state.bids.some(function(b){ return b.demo; });
+    $("demoBanner").style.display = (hasDemo && state.demoSeeded) ? "" : "none";
+  }
+  $("btnClearDemo").addEventListener("click", function(){
+    state.bids = state.bids.filter(function(b){ return !b.demo; });
+    state.demoSeeded = false;
+    if (state.currentId && !state.bids.some(function(b){ return b.id === state.currentId; })) state.currentId = null;
+    rsSave(); updateDemoBanner();
+    $("btnNew").click();
+    msg("saveMsg", "Demo data cleared ✓", true);
+  });
+
+  /* ---- settings ---- */
+  var SET_FIELDS = [
+    ["sCoName","coName","text"],["sCoPhone","coPhone","text"],["sCoEmail","coEmail","text"],["sCoAddr","coAddr","text"],["sCoLic","coLic","text"],
+    ["sPShingle","p:shingle"],["sPStarter","p:starter"],["sPUnderlay","p:underlay"],["sPIW","p:icewater"],["sPDrip","p:drip"],["sPRidge","p:ridge"],["sPNails","p:nails"],["sPVent","p:vent"],
+    ["sBundlesPerSq","bundlesPerSq"],["sStarterCov","starterCov"],["sUnderlayCov","underlayCov"],["sIWLF","iwLF"],["sDripLen","dripLen"],["sRidgeCov","ridgeCov"],["sNailsSqPerBox","nailsSqPerBox"],
+    ["sLaborSq","laborSq"],["sTearSq","tearSq"],["sMidAdder","midAdder"],["sSteepAdder","steepAdder"],
+    ["sDisposalLoad","disposalLoad"],["sSqPerLoad","sqPerLoad"],["sPermitDefault","permitDefault"],
+    ["sOverhead","overhead"],["sFloor","floorMargin"],["sTarget","targetMargin"],["sPremium","premiumPct"],["sMinJob","minJob"],
+    ["sBandLow","bandLow"],["sBandHigh","bandHigh"]
+  ];
+  function renderSettings(){
+    var st = state.settings;
+    SET_FIELDS.forEach(function(f){
+      var el = $(f[0]); if (!el) return;
+      if (f[2] === "text") el.value = st[f[1]] || "";
+      else if (f[1].indexOf("p:") === 0) el.value = st.prices[f[1].slice(2)];
+      else el.value = st[f[1]];
+    });
+    renderPitchRows();
+    $("hdrCo").textContent = st.coName ? (st.coName + (st.coPhone ? " · " + st.coPhone : "")) : "";
+  }
+  function renderPitchRows(){
+    var t = state.settings.pitchTable || RS_PITCH_STD;
+    var keys = Object.keys(t).sort(function(a,b){ return parseFloat(a) - parseFloat(b); });
+    $("pitchRows").innerHTML = '<div class="grid3">' + keys.map(function(k){
+      return '<div><label>' + k + '/12 multiplier</label><input inputmode="decimal" type="number" step="any" min="1" data-pitch="' + k + '" value="' + t[k] + '"></div>';
+    }).join("") + "</div>";
+  }
+  $("btnPitchReset").addEventListener("click", function(){
+    state.settings.pitchTable = JSON.parse(JSON.stringify(RS_PITCH_STD));
+    renderPitchRows();
+    msg("setMsg", "Pitch table reset to standard values — press Save settings to apply.", true);
+  });
+  $("btnSettingsSave").addEventListener("click", function(){
+    var st = state.settings;
+    SET_FIELDS.forEach(function(f){
+      var el = $(f[0]); if (!el) return;
+      if (f[2] === "text") st[f[1]] = el.value;
+      else if (f[1].indexOf("p:") === 0) st.prices[f[1].slice(2)] = rsNum(el.value);
+      else st[f[1]] = rsNum(el.value);
+    });
+    if (rsNum(st.targetMargin) < rsNum(st.floorMargin)) st.targetMargin = st.floorMargin;
+    var rows = $("pitchRows").querySelectorAll("input[data-pitch]");
+    rows.forEach(function(inp){
+      var v = parseFloat(inp.value);
+      if (isFinite(v) && v >= 1) st.pitchTable[inp.getAttribute("data-pitch")] = Math.round(v * 10000) / 10000;
+    });
+    rsSave(); renderSettings();
+    var cur = readForm();
+    $("bPitch").innerHTML = pitchOptions(cur.pitch);
+    recalc();
+    msg("setMsg", "Settings saved ✓ — bid prices and rates updated.", true);
+  });
+
+  /* ---- init ---- */
+  $("bPitch").innerHTML = pitchOptions(6);
+  renderSettings();
+  var start = null;
+  state.bids.forEach(function(b){ if (b.id === state.currentId) start = b; });
+  if (!start && state.bids.length) start = state.bids[0];
+  if (start) { state.currentId = start.id; fillForm(start); }
+  else $("btnNew").click();
+  updateDemoBanner();
+  renderSaved();
+});
+}
+</script>
+
+<!-- ===== White Wolf Digital legal pattern (Terms v1.0) ===== -->
+<style>
+#legalOverlay{position:fixed;inset:0;z-index:99999;background:rgba(10,12,16,.72);display:flex;align-items:flex-start;justify-content:center;overflow:auto;padding:18px 12px}
+#legalOverlay .legal-box{background:#fff;color:#14181f;max-width:560px;width:100%;border-radius:14px;padding:22px 20px;margin:auto;box-shadow:0 12px 40px rgba(0,0,0,.4);position:relative}
+#legalOverlay h2{margin:0 0 2px;font-size:22px}
+#legalOverlay h3{margin:0 0 12px;font-size:17px}
+#legalOverlay .legal-sum{font-size:16px;line-height:1.55;margin:10px 0}
+#legalOverlay .legal-sum p{margin:4px 0;font-weight:600}
+#legalOverlay .legal-note{background:#fff4d6;border:1px solid #e5c96a;border-radius:8px;padding:8px 10px;margin:8px 0;font-size:14px}
+#legalAgreeBtn{min-height:52px;width:100%;font-size:17px;font-weight:700;margin-top:14px;cursor:pointer}
+#legalAgreeBtn:disabled{opacity:.45;cursor:not-allowed}
+#legalOverlay .legal-check{display:flex;gap:10px;align-items:flex-start;margin-top:16px;font-size:15px;line-height:1.45;cursor:pointer;text-align:left}
+#legalOverlay .legal-check input{width:22px;height:22px;min-width:22px;margin:2px 0 0;cursor:pointer}
+#legalOverlay .legal-row{display:flex;gap:10px;flex-wrap:wrap;margin-top:10px}
+#legalOverlay .legal-row button{min-height:48px;flex:1 1 200px;cursor:pointer;font-size:15px}
+#legalFullView{position:absolute;inset:0;background:#fff;border-radius:14px;display:none;flex-direction:column;overflow:hidden}
+#legalFullView .legal-full-head{display:flex;align-items:center;gap:10px;padding:12px 14px;border-bottom:1px solid #ddd}
+#legalFullText{overflow:auto;padding:14px 18px;font-size:14.5px;line-height:1.55;text-align:left}
+#legalBackBtn{min-height:48px;min-width:88px;cursor:pointer;font-size:15px;font-weight:700}
+#legalCard{text-align:left;font-size:14.5px;line-height:1.55}
+#legalCard h3{margin:16px 0 6px}
+#legalCard ul{margin:6px 0 6px 18px;padding:0}
+#legalPageBtn{min-height:48px;cursor:pointer;font-size:15px;font-weight:700;width:100%}
+.legal-scrollbox{max-height:46vh;overflow:auto;border:1px solid #ddd;border-radius:8px;padding:10px 14px;margin-top:8px}
+</style>
+<script>
+"use strict";
+/* ===== Legal pattern: first-run Terms acceptance + Settings > Legal ===== */
+var TERMS_VERSION = "1.0";
+var LEGAL_APP_NAME = "RoofSquares";
+var LEGAL_KEY = "roofsquares_v1";
+var LEGAL_KEYS = ["roofsquares_v1"];
+var LEGAL_GLOBAL = "state";
+var LEGAL_HAS_DISCLAIMER = true;
+var LEGAL_SETTINGS_SEL = "#tab-settings";
+var LEGAL_TERMS_HTML = "<h2>Terms of Use \u2014 White Wolf Digital Apps</h2>\n<p><strong>Version 1.0 (DRAFT \u2014 pending attorney review)</strong> <strong>Seller: White Wolf Tree Service LLC, selling digital products under the name &quot;White Wolf Digital&quot;</strong> <strong>Contact: whitewolfbackoffice@gmail.com</strong></p>\n<h3>1. What you&#x27;re buying</h3>\n<p>Our apps (including ForgeFit AI, ForgeKitchen, TreeBid Pro, SnowBid, WashPrice Pro, RoofSquares, JobProfit Tracker, PastureLedger, and the other titles sold under White Wolf Digital) are single-file software tools. When you buy one, you are buying a <strong>license to use the file</strong>, not ownership of the software itself.</p>\n<h3>2. Your license</h3>\n<ul>\n<li>You may use the app for your own personal or business work.</li>\n<li>You may open it on your own devices (phone, tablet, computer) and move your own data between them using the app&#x27;s built-in backup/export tools.</li>\n<li>You may <strong>not</strong> resell, redistribute, give away, upload, or share the app file (or a copy of it) with anyone else \u2014 including posting it online, bundling it with other products, or selling access to it.</li>\n<li>You may <strong>not</strong> claim the app as your own work, remove its branding or notices, or use it to build a competing product for resale.</li>\n<li>One purchase = one buyer. A business purchase covers the buyer and their own employees using it for that business&#x27;s work; it does not cover other businesses.</li>\n</ul>\n<h3>3. Your data stays yours \u2014 and stays on your device</h3>\n<ul>\n<li>The current versions of our apps run <strong>entirely on your device</strong>. They have no accounts, no sign-in, no analytics, and they collect, transmit, and store <strong>none</strong> of your information on any server. We never see your data.</li>\n<li>Your records are stored in your browser/app storage on your device. **You are responsible for backing them up** using the app&#x27;s export tools. If you clear your browser data, lose your device, or uninstall the app, your records may be permanently lost, and we cannot recover them \u2014 we never had a copy.</li>\n<li>Files you export (backups, quotes, PDFs) are under your control. Where you store or send them is up to you.</li>\n</ul>\n<h3>4. Estimates are tools, not guarantees</h3>\n<p>Every number our apps produce \u2014 bids, prices, costs, calorie targets, projections, schedules, totals \u2014 is an <strong>estimate generated from the information you enter and the settings you choose</strong>. Outputs are aids for your own judgment, not guarantees of price, profit, outcome, or result. You are responsible for checking any output before relying on it (see also the disclaimer that applies to your app: Health Disclaimer for fitness/nutrition apps, Estimator Disclaimer for contractor tools). If an input is wrong, the output will be wrong.</p>\n<h3>5. Acceptable use</h3>\n<p>Don&#x27;t use the apps to break the law, infringe anyone&#x27;s rights, or misrepresent quotes, invoices, or records to your own customers. For the fitness apps, the guardrails in the app (healthy-rate limits, calorie floor) are part of the product \u2014 don&#x27;t treat the app as a way around them.</p>\n<h3>6. Provided &quot;as is&quot;</h3>\n<p>The apps are provided <strong>&quot;as is&quot; and &quot;as available,&quot; without warranties of any kind</strong>, express or implied \u2014 including merchantability, fitness for a particular purpose, accuracy of calculations, and uninterrupted or error-free operation \u2014 to the maximum extent allowed by law. Software has bugs; browsers change; we work to fix problems but do not promise any app is error-free or will work on every device or browser forever.</p>\n<h3>7. Limitation of liability</h3>\n<p>To the maximum extent allowed by law:</p>\n<ul>\n<li>We are **not liable for indirect, incidental, special, or consequential damages** \u2014 including lost profits, lost or mispriced jobs, lost data, or business interruption \u2014 arising from use of the apps.</li>\n<li>Our total liability for any claim connected to an app is limited to the <strong>amount you paid for that app</strong>.</li>\n<li>Nothing in these terms limits liability that cannot legally be limited.</li>\n</ul>\n<h3>8. Refunds</h3>\n<p>Refunds are handled <strong>by the storefront you bought from, under that storefront&#x27;s policy</strong> \u2014 Gumroad&#x27;s refund policy for Gumroad purchases, and Google Play&#x27;s refund policy for Play purchases. These terms do not add to, replace, or override the storefront&#x27;s refund rules. If a file is defective and won&#x27;t open, contact us at whitewolfbackoffice@gmail.com and we&#x27;ll fix or replace the file.</p>\n<h3>9. Updates and changes to these terms</h3>\n<ul>\n<li>We may release updated versions of an app. Updates may add, change, or remove features.</li>\n<li>We may update these terms. The version you agreed to is recorded in the app (version number and date) at first-run acceptance. If terms change, the app may ask you to accept the new version once on next open. Updated terms apply going forward, not retroactively.</li>\n<li>If you don&#x27;t agree to an updated version of the terms, stop using the app.</li>\n</ul>\n<h3>10. Governing law</h3>\n<p>These terms are governed by the laws of the <strong>State of Oklahoma</strong>, USA. (Attorney to confirm governing law and venue before publication.)</p>\n<h3>11. Contact</h3>\n<p>White Wolf Tree Service LLC (White Wolf Digital) \u2014 whitewolfbackoffice@gmail.com.</p>\n<h3>CONNECTED FEATURES \u2014 takes effect only when these features ship</h3>\n<p><em>The sections below apply only to future connected features (device sync via Health Connect, AI voice logging, and the AI Goal Preview in ForgeFit). They do not apply to the current offline versions, which never transmit data.</em></p>\n<ul>\n<li><strong>Opt-in only.</strong> Connected features are off by default. Each one asks for your separate, explicit consent \u2014 on its own consent screen, in plain language \u2014 before anything leaves your device. Declining never disables the app&#x27;s offline features.</li>\n<li><strong>What gets sent.</strong> Only what the consent screen names, only when you use the feature: for example, a meal description (text, or audio only if cloud transcription is on) for AI voice logging, or the single photo you choose for an AI Goal Preview.</li>\n<li><strong>No retention by us.</strong> Our relay service passes your request to the named AI provider and keeps nothing \u2014 no copies of your photos, audio, transcripts, or entries are stored on our servers. Provider handling is described on the consent screen and in the Privacy Policy.</li>\n<li><strong>Health data stays on the device.</strong> Device sync (Health Connect) reads your health data on your phone and stores it in the app on your phone. It is not uploaded to us.</li>\n<li><strong>Allowances.</strong> Some connected features run on third-party AI services we pay for per use, so they may include a monthly allowance described in the app (for example, a set number of AI previews or voice entries per month), with optional additional credits. Allowances and pricing will be shown in the app before you use the feature; they are not a subscription unless the app says so in plain words.</li>\n<li><strong>Permissions.</strong> Connected features may request device permissions (such as Health Connect access or the microphone) at the moment you first use them. You can revoke permissions any time in your device settings; the related feature will simply stop working.</li>\n</ul>";
+var LEGAL_DISC_HTML = "<h2>Estimator Disclaimer \u2014 Contractor &amp; Trade Tools</h2>\n<p><strong>Applies to: TreeBid Pro, SnowBid, WashPrice Pro, RoofSquares, JobProfit Tracker, FieldForms Toolkit, PaintPro, FenceDeck, MarketMaker, and the other estimating/pricing tools sold under White Wolf Digital \u2014 including bundles that contain them.</strong></p>\n<h3>Estimating aids, not finished quotes</h3>\n<ul>\n<li>These apps are <strong>estimating and record-keeping aids</strong>. Every bid, price, cost, measurement, and total they produce is an **estimate based on the information and rates you enter**.</li>\n<li>**You \u2014 the business owner \u2014 are responsible for verifying everything before you quote a customer:** measurements and quantities, site conditions, your current material and labor costs, your rates and margins, taxes, permit and license requirements, disposal rules, and any contract terms.</li>\n<li>Default rates, presets, and sample data included in the apps are starting points only. They are not market prices, not industry standards, and not a recommendation of what you should charge.</li>\n<li>A saved quote keeps the prices in effect when you created it (price snapshot). Changing your presets later does not change saved quotes \u2014 and a saved quote is still your responsibility to review before sending.</li>\n</ul>\n<h3>Specific tools</h3>\n<ul>\n<li><strong>TreeBid Pro:</strong> tree work is dangerous and site-specific. Difficulty factors and presets cannot see the actual tree, lean, rot, targets, or access. Inspect every job in person before final pricing. The &quot;Invoice with Wave&quot; feature is an open-and-paste handoff \u2014 TreeBid does not connect to Wave, and the invoice you send from Wave is yours.</li>\n<li><strong>RoofSquares / measurement tools:</strong> confirm roof measurements and pitch in person or by your usual method before ordering materials.</li>\n<li><strong>SnowBid / seasonal tools:</strong> route times, snowfall amounts, and service pricing vary by storm and site; seasonal contracts are your agreement with your customer, on your terms.</li>\n<li><strong>JobProfit Tracker:</strong> profit figures depend on the costs you enter. The app is not accounting or tax software and does not replace your bookkeeper or accountant.</li>\n</ul>\n<h3>Bottom line</h3>\n<p>If an output and your judgment disagree, trust your judgment \u2014 then fix the input. We are not responsible for jobs won, lost, or mispriced based on app outputs, within the limits of the Terms of Use.</p>";
+var LEGAL_PRIVACY_HTML = "<h3>Privacy</h3><p>This app has no accounts and no sign-in. It collects no data, runs no analytics, and sends nothing anywhere &mdash; everything you enter is stored only on this device, in this browser/app storage. We never see your data. You are responsible for backing up your records with the app&rsquo;s export tools; files you export are under your control.</p>";
+var __legalRecord = null;
+var __legalOrigSet = localStorage.setItem.bind(localStorage);
+function __legalReadStored(){
+  try { var raw = localStorage.getItem(LEGAL_KEY); if(!raw) return null; var p = JSON.parse(raw); return (p && typeof p === "object") ? p : null; } catch(e){ return null; }
+}
+function __legalAdopt(rec){ if(rec && rec.termsVersion){ __legalRecord = { termsVersion: String(rec.termsVersion), acceptedDate: rec.acceptedDate || "", disclaimerShown: !!rec.disclaimerShown }; } }
+(function(){
+  var stored = __legalReadStored();
+  if (stored && stored.legal) __legalAdopt(stored.legal);
+})();
+/* Keep the acceptance inside the app's own saved state: adopt any legal record the app writes,
+   and re-attach the known record when an app save would otherwise drop it. */
+localStorage.setItem = function(k, v){
+  if (LEGAL_KEYS.indexOf(k) >= 0 && typeof v === "string"){
+    try {
+      var p = JSON.parse(v);
+      if (p && typeof p === "object" && !Array.isArray(p)){
+        if (p.legal) __legalAdopt(p.legal);
+        else if (__legalRecord && k === LEGAL_KEY){ p.legal = __legalRecord; v = JSON.stringify(p); }
+      }
+    } catch(e){}
+  }
+  return __legalOrigSet(k, v);
+};
+function __legalVersionOlder(a, b){
+  var pa = String(a||"0").split("."), pb = String(b||"0").split(".");
+  for (var i = 0; i < Math.max(pa.length, pb.length); i++){ var x = parseInt(pa[i]||"0",10)||0, y = parseInt(pb[i]||"0",10)||0; if (x < y) return true; if (x > y) return false; }
+  return false;
+}
+function __legalAcceptLine(){
+  if (__legalRecord && __legalRecord.acceptedDate) return "You agreed to Terms v" + __legalRecord.termsVersion + " on " + __legalRecord.acceptedDate + ".";
+  return "Terms acceptance not yet recorded.";
+}
+function __legalRenderAcceptLine(){
+  var el = document.getElementById("legalAcceptLine");
+  if (el) el.textContent = __legalAcceptLine();
+}
+function __legalBuildPage(){
+  var sec = document.querySelector(LEGAL_SETTINGS_SEL);
+  if (!sec || document.getElementById("legalCard")) return;
+  var wrap = document.createElement("div");
+  wrap.className = "card";
+  wrap.style.marginTop = "14px";
+  var discSection = LEGAL_HAS_DISCLAIMER ? '<h3>Estimator Disclaimer</h3><div class="legal-scrollbox">' + LEGAL_DISC_HTML + "</div>" : "";
+  wrap.innerHTML = '<h2>Legal</h2>'
+    + '<p><button type="button" id="legalPageBtn">Legal &mdash; Terms, ' + (LEGAL_HAS_DISCLAIMER ? "Disclaimer" : "") + ' &amp; Privacy</button></p>'
+    + '<div id="legalCard" style="display:none">'
+    + '<p id="legalAcceptLine"></p>'
+    + "<h3>Terms of Use</h3>" + '<div class="legal-scrollbox">' + LEGAL_TERMS_HTML + "</div>"
+    + discSection
+    + LEGAL_PRIVACY_HTML
+    + '<p><strong>Sold by:</strong> White Wolf Tree Service LLC (White Wolf Digital) &mdash; whitewolfbackoffice@gmail.com</p>'
+    + "</div>";
+  sec.appendChild(wrap);
+  document.getElementById("legalPageBtn").addEventListener("click", function(){
+    var card = document.getElementById("legalCard");
+    card.style.display = (card.style.display === "none") ? "block" : "none";
+    __legalRenderAcceptLine();
+    if (card.style.display === "block"){ try { card.scrollIntoView({block:"start"}); } catch(e){} }
+  });
+  __legalRenderAcceptLine();
+}
+function __legalShowFull(kind){
+  var fv = document.getElementById("legalFullView");
+  var ft = document.getElementById("legalFullText");
+  var fh = document.getElementById("legalFullTitle");
+  if (!fv || !ft) return;
+  if (kind === "disclaimer"){ ft.innerHTML = LEGAL_DISC_HTML; if (fh) fh.textContent = "Estimator Disclaimer"; }
+  else { ft.innerHTML = LEGAL_TERMS_HTML; if (fh) fh.textContent = "Terms of Use"; }
+  fv.style.display = "flex";
+  ft.scrollTop = 0;
+}
+function __legalMaybePrompt(){
+  var stored = __legalReadStored();
+  var rec = stored && stored.legal ? stored.legal : null;
+  if (rec) __legalAdopt(rec);
+  var need = false, updated = false;
+  if (!rec) need = true;
+  else if (__legalVersionOlder(rec.termsVersion, TERMS_VERSION)){ need = true; updated = true; }
+  var ov = document.getElementById("legalOverlay");
+  if (!ov) return;
+  if (need){
+    var note = document.getElementById("legalUpdatedNote");
+    if (note) note.style.display = updated ? "block" : "none";
+    var chk0 = document.getElementById("legalAgreeCheck");
+    var ab0 = document.getElementById("legalAgreeBtn");
+    if (chk0) chk0.checked = false;
+    if (ab0) ab0.disabled = true;
+    ov.style.display = "flex";
+  } else {
+    ov.style.display = "none";
+  }
+  __legalRenderAcceptLine();
+}
+function __legalAgree(){
+  var chkA = document.getElementById("legalAgreeCheck");
+  if (chkA && !chkA.checked) return;
+  var d = new Date();
+  var iso = d.getFullYear() + "-" + String(d.getMonth()+1).padStart(2,"0") + "-" + String(d.getDate()).padStart(2,"0");
+  __legalRecord = { termsVersion: TERMS_VERSION, acceptedDate: iso, disclaimerShown: LEGAL_HAS_DISCLAIMER };
+  try { var g = window[LEGAL_GLOBAL]; if (g && typeof g === "object") g.legal = __legalRecord; } catch(e){}
+  try {
+    var stored = __legalReadStored();
+    if (stored){ stored.legal = __legalRecord; __legalOrigSet(LEGAL_KEY, JSON.stringify(stored)); }
+    else { var g2 = window[LEGAL_GLOBAL]; if (g2 && typeof g2 === "object") __legalOrigSet(LEGAL_KEY, JSON.stringify(g2)); }
+  } catch(e){}
+  var ov = document.getElementById("legalOverlay");
+  if (ov) ov.style.display = "none";
+  __legalRenderAcceptLine();
+}
+function __legalBuildOverlay(){
+  if (document.getElementById("legalOverlay")) return;
+  var ov = document.createElement("div");
+  ov.id = "legalOverlay";
+  ov.style.display = "none";
+  var discBtn = LEGAL_HAS_DISCLAIMER ? '<button type="button" id="legalDisclaimerBtn">Read the Estimator Disclaimer</button>' : "";
+  var followLine = LEGAL_HAS_DISCLAIMER
+    ? "The full Terms and Disclaimer are one tap away, now and any time in Settings &rarr; Legal."
+    : "The full Terms are one tap away, now and any time in Settings &rarr; Legal.";
+  var checkLabel = LEGAL_HAS_DISCLAIMER
+    ? "I have read the disclaimer and I agree to the Terms of Use"
+    : "I have read and I agree to the Terms of Use";
+  ov.innerHTML = '<div class="legal-box" role="dialog" aria-modal="true" aria-label="Terms of Use">'
+    + "<h2>" + LEGAL_APP_NAME + "</h2><h3>Terms of Use</h3>"
+    + '<div class="legal-note" id="legalUpdatedNote" style="display:none">Our terms were updated (v' + TERMS_VERSION + ").</div>"
+    + '<div class="legal-sum"><p>Your data stays on your device.</p>'
+    + "<p>Estimates are aids, not guarantees.</p>"
+    + "<p>You're responsible for checking outputs before you rely on them.</p></div>"
+    + "<p>" + followLine + "</p>"
+    + '<div class="legal-row"><button type="button" id="legalTermsBtn">Read the full Terms</button>' + discBtn + "</div>"
+    + '<label class="legal-check"><input type="checkbox" id="legalAgreeCheck"> <span>' + checkLabel + '</span></label>'
+    + '<button type="button" id="legalAgreeBtn" disabled>I Agree</button>'
+    + '<div id="legalFullView"><div class="legal-full-head"><button type="button" id="legalBackBtn">&larr; Back</button><strong id="legalFullTitle">Terms of Use</strong></div><div id="legalFullText"></div></div>'
+    + "</div>";
+  document.body.appendChild(ov);
+  document.getElementById("legalAgreeBtn").addEventListener("click", __legalAgree);
+  var agreeChk = document.getElementById("legalAgreeCheck");
+  var agreeBtn = document.getElementById("legalAgreeBtn");
+  if (agreeChk && agreeBtn) agreeChk.addEventListener("change", function(){ agreeBtn.disabled = !agreeChk.checked; });
+  document.getElementById("legalTermsBtn").addEventListener("click", function(){ __legalShowFull("terms"); });
+  var db = document.getElementById("legalDisclaimerBtn");
+  if (db) db.addEventListener("click", function(){ __legalShowFull("disclaimer"); });
+  document.getElementById("legalBackBtn").addEventListener("click", function(){ document.getElementById("legalFullView").style.display = "none"; });
+}
+__legalBuildOverlay();
+__legalBuildPage();
+if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", function(){ __legalBuildOverlay(); __legalBuildPage(); __legalMaybePrompt(); });
+else __legalMaybePrompt();
+</script>
+
+<script>
+/* ============================================================================
+   SHARED VOICE DICTATION LAYER — "vv" snippet v1.0 (2026-10-29)
+   Governing standard: QA-STANDARD.md §9a (mic dictation on every data-entry
+   field). Built once, dropped into every catalog app verbatim. Do not fork
+   per app — fix here and re-drop.
+
+   What it does:
+   - Adds a >=48px mic button beside every text input, number input, and
+     textarea (an <input> with no type attribute counts as text). Selects,
+     checkboxes, radios, file/date/tel/email inputs are NOT wired — they keep
+     their native pickers/keyboards (per voice-retrofit-plan.md counting).
+   - Tap the mic -> Web Speech API dictation into that field, exactly as if
+     typed. Interim words show live in the field; nothing auto-submits.
+   - Number fields: spoken numbers are converted ("sixty five" -> 65,
+     "two point five" -> 2.5, "1,200" -> 1200). If the words can't be read as
+     a number, the field is left untouched and the user is told plainly.
+   - After a successful dictation the field receives real bubbling "input"
+     and "change" events, so the host app's own handlers fire exactly as if
+     the user typed.
+   - Fields added later (re-renders, add-row buttons) are wired automatically
+     via MutationObserver.
+   - No SpeechRecognition (Firefox, file:// copies in most browsers, denied
+     permission): the mic shows the honest note "Voice isn't available on
+     this device/browser — typing works as always" and typing is never
+     blocked, hidden, or degraded.
+   - Failed/empty recognition announces "Didn't catch that — try again or
+     type it" and restores the field's previous value.
+
+   Wiring (see README.md in this folder): paste this whole IIFE in a <script>
+   block just before </body>. It injects its own styles (#vv-style) — no
+   other changes needed. It never touches storage, prices, or app state.
+   ============================================================================ */
+(function () {
+  "use strict";
+  if (window.__vvDictation) return; // drop-in twice = wire once
+  window.__vvDictation = "1.0";
+
+  var SR = window.SpeechRecognition || window.webkitSpeechRecognition || null;
+  var FALLBACK_MSG = "Voice isn't available on this device/browser — typing works as always";
+  var MISSED_MSG = "Didn't catch that — try again or type it";
+  var BLOCKED_MSG = "Microphone is blocked — typing works as always. Check the browser's mic permission if you want voice.";
+
+  /* ---- styles (self-injected; dictation-snippet.css holds the same rules) ---- */
+  var CSS = [
+    ".vv-wrap{display:flex;gap:6px;align-items:flex-start}",
+    ".vv-wrap>input,.vv-wrap>textarea{flex:1 1 0;min-width:0}",
+    ".vv-mic{flex:0 0 auto;width:48px;min-width:48px;height:48px;border-radius:8px;border:1px solid #b9c2ba;background:#fff;font-size:20px;line-height:1;cursor:pointer;display:flex;align-items:center;justify-content:center;padding:0;-webkit-tap-highlight-color:transparent}",
+    ".vv-mic:active{transform:scale(.96)}",
+    ".vv-mic.vv-live{background:#b3372e;border-color:#b3372e;animation:vvpulse 1s ease-in-out infinite}",
+    "@keyframes vvpulse{0%,100%{opacity:1}50%{opacity:.5}}",
+    ".vv-status{position:fixed;left:50%;bottom:14px;transform:translateX(-50%);max-width:min(92vw,480px);background:#1c2420;color:#fff;padding:10px 14px;border-radius:9px;font-size:14px;line-height:1.35;z-index:99999;box-shadow:0 4px 18px rgba(0,0,0,.25);display:none;text-align:center;pointer-events:none}",
+    ".vv-status.vv-show{display:block}",
+    "@media print{.vv-mic{display:none!important}.vv-status{display:none!important}}"
+  ].join("\n");
+  if (!document.getElementById("vv-style")) {
+    var st = document.createElement("style");
+    st.id = "vv-style"; st.textContent = CSS;
+    (document.head || document.documentElement).appendChild(st);
+  }
+
+  /* ---- status announcements ---- */
+  var statusEl = null, statusTimer = null;
+  function say(msg, ms) {
+    if (!statusEl) {
+      statusEl = document.createElement("div");
+      statusEl.className = "vv-status"; statusEl.setAttribute("role", "status");
+      statusEl.setAttribute("aria-live", "polite");
+      document.body.appendChild(statusEl);
+    }
+    statusEl.textContent = msg;
+    statusEl.classList.add("vv-show");
+    if (statusTimer) clearTimeout(statusTimer);
+    statusTimer = setTimeout(function () { statusEl.classList.remove("vv-show"); }, ms || 5000);
+  }
+
+  /* ---- spoken-number conversion ---- */
+  var ONES = { zero: 0, one: 1, two: 2, three: 3, four: 4, five: 5, six: 6, seven: 7, eight: 8, nine: 9, ten: 10, eleven: 11, twelve: 12, thirteen: 13, fourteen: 14, fifteen: 15, sixteen: 16, seventeen: 17, eighteen: 18, nineteen: 19 };
+  var TENS = { twenty: 20, thirty: 30, forty: 40, fifty: 50, sixty: 60, seventy: 70, eighty: 80, ninety: 90 };
+  function wordsToNumber(s) {
+    var words = s.split(/[\s-]+/), total = 0, current = 0, seen = false, decimal = null, decPlace = 0.1, neg = false;
+    for (var i = 0; i < words.length; i++) {
+      var w = words[i];
+      if (!w || w === "and") continue;
+      if (w === "minus" || w === "negative") { neg = true; continue; }
+      if (w === "point") { decimal = true; continue; }
+      if (decimal) {
+        if (ONES.hasOwnProperty(w) && ONES[w] < 10) { if (decimal === true) decimal = 0; decimal += ONES[w] * decPlace; decPlace /= 10; seen = true; }
+        continue;
+      }
+      if (ONES.hasOwnProperty(w)) { current += ONES[w]; seen = true; }
+      else if (TENS.hasOwnProperty(w)) { current += TENS[w]; seen = true; }
+      else if (w === "hundred") { current = (current || 1) * 100; seen = true; }
+      else if (w === "thousand") { total += (current || 1) * 1000; current = 0; seen = true; }
+      else if (w === "million") { total += (current || 1) * 1000000; current = 0; seen = true; }
+      else if (w === "a" || w === "an") { /* filler before hundred/thousand */ }
+      /* any other word (dollars, feet, hours…) is ignored filler */
+    }
+    if (!seen) return null;
+    var n = total + current + (decimal ? decimal : 0);
+    return neg ? -n : n;
+  }
+  function parseSpokenNumber(raw) {
+    if (!raw) return null;
+    var s = String(raw).toLowerCase().replace(/\$/g, " ").replace(/\s+/g, " ").trim();
+    s = s.replace(/(\d),(?=\d)/g, "$1").replace(/,/g, " "); // 1,200 -> 1200
+    var m = s.match(/-?\d+(?:\.\d+)?/);
+    if (m) { var n = parseFloat(m[0]); if (isFinite(n)) return n; }
+    return wordsToNumber(s);
+  }
+
+  /* ---- field helpers ---- */
+  function isWirable(f) {
+    if (!f || f.dataset.vvWired) return false;
+    if (f.tagName === "TEXTAREA") return !(f.disabled || f.readOnly);
+    if (f.tagName !== "INPUT") return false;
+    var t = (f.getAttribute("type") || "text").toLowerCase();
+    if (t !== "text" && t !== "number") return false;
+    return !(f.disabled || f.readOnly);
+  }
+  function labelFor(f) {
+    var name = "";
+    if (f.id) {
+      var lab = document.querySelector('label[for="' + f.id + '"]');
+      if (lab) name = lab.textContent;
+    }
+    if (!name) {
+      var prev = f.closest ? f.closest("div") : null;
+      var l2 = prev ? prev.querySelector("label") : null;
+      if (l2) name = l2.textContent;
+    }
+    if (!name) name = f.getAttribute("placeholder") || f.getAttribute("name") || "field";
+    return String(name).replace(/\s+/g, " ").trim().slice(0, 60) || "field";
+  }
+  function fireEvents(f) {
+    ["input", "change"].forEach(function (type) {
+      var ev;
+      try { ev = new Event(type, { bubbles: true, composed: true }); }
+      catch (e) { ev = document.createEvent("Event"); ev.initEvent(type, true, true); }
+      f.dispatchEvent(ev);
+    });
+  }
+  function joinText(base, add) {
+    if (!base) return add;
+    if (!add) return base;
+    return base + (/\s$/.test(base) ? "" : " ") + add;
+  }
+
+  /* ---- dictation session ---- */
+  var active = null; // { rec, field, btn, base, finalText, gotResult, done }
+  function stopActive() { if (active && active.rec) { try { active.rec.stop(); } catch (e) {} } }
+  function startDictation(field, btn) {
+    if (active && active.field === field) { stopActive(); return; } // tap again = stop
+    if (active) stopActive();
+    if (!SR) { say(FALLBACK_MSG, 6000); return; }
+    var rec;
+    try { rec = new SR(); } catch (e) { say(FALLBACK_MSG, 6000); return; }
+    var session = { rec: rec, field: field, btn: btn, base: field.value || "", finalText: "", gotResult: false, done: false };
+    active = session;
+    rec.lang = (document.documentElement.getAttribute("lang") || "en-US");
+    rec.interimResults = true;
+    rec.continuous = false;
+    rec.maxAlternatives = 1;
+    btn.classList.add("vv-live");
+    btn.setAttribute("aria-label", "Listening — tap to stop");
+    say("Listening… speak now.");
+    rec.onresult = function (ev) {
+      var interim = "", finalT = "";
+      for (var i = ev.resultIndex; i < ev.results.length; i++) {
+        var r = ev.results[i];
+        if (r.isFinal) finalT += r[0].transcript; else interim += r[0].transcript;
+      }
+      if (finalT) { session.finalText = joinText(session.finalText, finalT.trim()); session.gotResult = true; }
+      var shown = joinText(session.finalText, interim.trim());
+      if (field.type !== "number") field.value = joinText(session.base, shown);
+      else if (shown) field.value = shown; // numbers: show the words until they resolve on end
+    };
+    rec.onerror = function (ev) {
+      if (session.done) return;
+      session.done = true;
+      field.value = session.base;
+      cleanup(session);
+      if (ev && (ev.error === "not-allowed" || ev.error === "service-not-allowed")) say(BLOCKED_MSG, 6500);
+      else if (ev && ev.error === "not-supported") say(FALLBACK_MSG, 6000);
+      else say(MISSED_MSG, 5000);
+    };
+    rec.onend = function () {
+      if (session.done) return;
+      session.done = true;
+      cleanup(session);
+      var heard = (session.finalText || "").trim();
+      if (!heard) { field.value = session.base; say(MISSED_MSG, 5000); return; }
+      if (field.type === "number") {
+        var n = parseSpokenNumber(heard);
+        if (n === null || !isFinite(n)) { field.value = session.base; say(MISSED_MSG, 5000); return; }
+        field.value = String(n);
+      } else {
+        field.value = joinText(session.base, heard);
+      }
+      fireEvents(field);
+      try { field.focus({ preventScroll: false }); } catch (e) {}
+      say("Added: " + heard, 3000);
+    };
+    try { rec.start(); } catch (e) { session.done = true; cleanup(session); field.value = session.base; say(MISSED_MSG, 5000); }
+  }
+  function cleanup(session) {
+    if (active === session) active = null;
+    if (session.btn) { session.btn.classList.remove("vv-live"); session.btn.setAttribute("aria-label", session.btn.dataset.vvLabel || "Voice entry"); }
+  }
+
+  /* ---- wiring ---- */
+  function wireField(f) {
+    if (!isWirable(f)) return;
+    f.dataset.vvWired = "1";
+    var wrap = document.createElement("span");
+    wrap.className = "vv-wrap";
+    f.parentNode.insertBefore(wrap, f);
+    wrap.appendChild(f);
+    var btn = document.createElement("button");
+    btn.type = "button";
+    btn.className = "vv-mic";
+    btn.innerHTML = "🎤";
+    var lab = "Voice entry for " + labelFor(f);
+    btn.dataset.vvLabel = lab;
+    btn.setAttribute("aria-label", lab);
+    btn.title = "Voice entry";
+    btn.addEventListener("click", function () { startDictation(f, btn); });
+    wrap.appendChild(btn);
+  }
+  function scan(root) {
+    if (!root || !root.querySelectorAll) return;
+    var fields = root.querySelectorAll("input, textarea");
+    for (var i = 0; i < fields.length; i++) wireField(fields[i]);
+    if (root.tagName && (root.tagName === "INPUT" || root.tagName === "TEXTAREA")) wireField(root);
+  }
+
+  function init() {
+    scan(document);
+    if (window.MutationObserver && document.body) {
+      var pending = false;
+      var obs = new MutationObserver(function (muts) {
+        var hasAdds = false;
+        for (var i = 0; i < muts.length; i++) if (muts[i].addedNodes.length) { hasAdds = true; break; }
+        if (!hasAdds || pending) return;
+        pending = true;
+        setTimeout(function () { pending = false; scan(document); }, 60);
+      });
+      obs.observe(document.body, { childList: true, subtree: true });
+    }
+  }
+  if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", init);
+  else init();
+
+  /* exposed for QA harnesses and future Tell flows */
+  window.__vv = { version: "1.0", supported: !!SR, parseSpokenNumber: parseSpokenNumber, fallbackMessage: FALLBACK_MSG, missedMessage: MISSED_MSG };
+})();
+</script>
+
+</body>
+</html>

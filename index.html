@@ -72,6 +72,30 @@ details.fx>summary:focus-visible{outline:2px solid var(--acc);outline-offset:2px
   #printArea .muted{color:#444}
 }
 </style>
+<style>
+/* ===== RoofSquares v1.1.0: modern app-look redesign (BirdTally pattern, dark slate palette) ===== */
+:root{--bar-h:64px}
+header{position:sticky;top:0;z-index:40;background:linear-gradient(135deg,#131a21,#1f2937 55%,#4a3205);box-shadow:0 2px 12px rgba(0,0,0,.45)}
+header h1::before{content:"\1F3E0";display:inline-block;background:linear-gradient(145deg,#f59e0b,#d97706);border-radius:15px;padding:7px 9px;margin-right:11px;font-size:24px;line-height:1;vertical-align:3px;box-shadow:inset 0 1px 0 rgba(255,255,255,.45),0 3px 8px rgba(0,0,0,.35)}
+main{padding-bottom:calc(96px + env(safe-area-inset-bottom))}
+.tabs{position:fixed;left:0;right:0;bottom:0;z-index:60;flex-wrap:nowrap;gap:2px;margin:0;background:rgba(15,20,26,.97);border-top:1px solid var(--line);box-shadow:0 -3px 16px rgba(0,0,0,.4);padding:6px 8px calc(6px + env(safe-area-inset-bottom))}
+.tabs .tab{flex:1;background:none;border:none;color:var(--muted);padding:4px 2px 5px;border-radius:14px;min-height:56px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:1px;font-weight:700}
+.tabs .tab .ic{font-size:21px;line-height:1.15;padding:3px 14px;border-radius:999px;transition:background .15s}
+.tabs .tab .lb{font-size:11.5px;letter-spacing:.2px}
+.tabs .tab.active{background:none;color:var(--acc);border-color:transparent}
+.tabs .tab.active .ic{background:var(--acc);box-shadow:0 2px 6px rgba(245,158,11,.5)}
+section[id^="tab-"]{animation:tabIn .28s ease both}
+@keyframes tabIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+.card{border-radius:16px;box-shadow:0 2px 6px rgba(0,0,0,.3),0 10px 26px rgba(0,0,0,.3)}
+button.act,button.ghost{border-radius:999px}
+input,select,textarea{border-radius:12px}
+#legalOverlay .legal-box{border-radius:22px;padding:26px 20px 22px;box-shadow:0 18px 44px rgba(0,0,0,.5)}
+#legalOverlay .legal-box::before{content:"\1F3E0";display:block;text-align:center;font-size:66px;line-height:1.1}
+#legalOverlay h2{text-align:center;font-size:27px;font-weight:800}
+#legalOverlay h3{text-align:center}
+#legalOverlay h2::after{content:"Welcome! Measure the roof, price the materials, and protect your margin \2014  all on this device. Before you start, here are the short terms:";display:block;text-align:center;font-size:15px;font-weight:400;color:#5a6270;margin-top:6px;line-height:1.5}
+#legalAgreeBtn{border-radius:999px}
+</style>
 </head>
 <body>
 <header>
@@ -83,10 +107,10 @@ details.fx>summary:focus-visible{outline:2px solid var(--acc);outline-offset:2px
 
 <main id="app">
   <div class="tabs">
-    <button class="tab active" data-tab="bid" type="button">Bid Builder</button>
-    <button class="tab" data-tab="saved" type="button">Saved Bids</button>
-    <button class="tab" data-tab="settings" type="button">Settings</button>
-    <button class="tab" data-tab="help" type="button">Help</button>
+    <button class="tab active" data-tab="bid" type="button"><span class="ic">🏠</span><span class="lb">Bid Builder</span></button>
+    <button class="tab" data-tab="saved" type="button"><span class="ic">🗂️</span><span class="lb">Saved Bids</span></button>
+    <button class="tab" data-tab="settings" type="button"><span class="ic">⚙️</span><span class="lb">Settings</span></button>
+    <button class="tab" data-tab="help" type="button"><span class="ic">❓</span><span class="lb">Help</span></button>
   </div>
 
   <!-- ============ BID BUILDER ============ -->
@@ -296,8 +320,8 @@ details.fx>summary:focus-visible{outline:2px solid var(--acc);outline-offset:2px
       <p><strong>Profit floor.</strong> Your floor is a minimum margin (default 25%) on the final price. Type a final price below the floor price and RoofSquares warns you in red and <strong>won’t save the bid</strong> unless you tick the one-time override and own the decision. This is the guardrail against winning roofs that lose money.</p>
       <p><strong>Defaults are planning numbers, not gospel.</strong> The pitch multipliers are standard geometry. Everything else — production rates, prices, coverage, the installed $/square band ($452–$1,208 national planning band) — is a starting default. Set your real supplier prices and crew rates in Settings before trusting a bid.</p>
       <p><strong>Your data.</strong> Everything is stored only in this browser (localStorage) on this device — no account, no cloud, no tracking, works fully offline. Use Export backup in Saved Bids before switching browsers or devices. Clearing browser data erases the app — export first.</p>
-      <p class="small" id="helpVersion">RoofSquares v1.0.3</p>
-      <p>Questions or trouble? <a id="helpEmailBtn" href="mailto:whitewolfbackoffice@gmail.com?subject=RoofSquares%20help%20%E2%80%94%20v1.0.3&amp;body=Tell%20us%20what%20you%20were%20trying%20to%20do%20and%20what%20happened%3A%0A%0A" style="display:inline-block;min-height:48px;padding:12px 18px;background:var(--acc);color:#14100a;font-weight:700;border-radius:9px;text-decoration:none">Email us</a></p>
+      <p class="small" id="helpVersion">RoofSquares v1.1.0</p>
+      <p>Questions or trouble? <a id="helpEmailBtn" href="mailto:whitewolfbackoffice@gmail.com?subject=RoofSquares%20help%20%E2%80%94%20v1.1.0&amp;body=Tell%20us%20what%20you%20were%20trying%20to%20do%20and%20what%20happened%3A%0A%0A" style="display:inline-block;min-height:48px;padding:12px 18px;background:var(--acc);color:#14100a;font-weight:700;border-radius:9px;text-decoration:none">Email us</a></p>
       <p class="small">The button opens your own mail app with our address and the app version filled in — nothing is sent until you press send there.</p>
     </div>
   </section>
@@ -306,7 +330,7 @@ details.fx>summary:focus-visible{outline:2px solid var(--acc);outline-offset:2px
 <script>
 "use strict";
 /* ================= Pure engine (no DOM access) ================= */
-var APP_VERSION = "1.0.3";
+var APP_VERSION = "1.1.0";
 var RS_STORE_KEY = "roofsquares_v1";
 var RS_PITCH_STD = {"0":1.0000,"1":1.0035,"2":1.0138,"3":1.0308,"4":1.0541,"5":1.0833,"6":1.1180,"7":1.1577,"8":1.2019,"9":1.2500,"10":1.3017,"11":1.3566,"12":1.4142,"14":1.5366,"16":1.6667};
 var RS_COMPLEXITY = {"simple":5,"gable":10,"hip":12,"cutup":15};
